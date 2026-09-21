@@ -6,7 +6,7 @@
   --ink: #1c231f;
   --ink-soft: #4b5d52;
   --line: #d8dcd3;
-  --accent: #2ba4c1;
+  --accent: #c1502b;
   --accent-ink: #fbfaf6;
 
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
@@ -134,7 +134,22 @@ button:focus-visible {
   padding: var(--space-5) 0 var(--space-4);
   border-bottom: 1px solid var(--line);
 }
-.hero__inner { max-width: 42rem; }
+.hero__inner {
+  max-width: var(--wrap-max-wide);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.hero__text { max-width: 34rem; }
+.hero__photo {
+  width: 12rem;
+  height: 12rem;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+}
 .hero__eyebrow {
   margin: 0 0 var(--space-2);
   color: var(--ink-soft);
@@ -155,6 +170,15 @@ button:focus-visible {
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: var(--space-4);
+}
+
+@media (max-width: 40rem) {
+  .hero__inner {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .hero__photo { width: 6.5rem; height: 6.5rem; }
 }
 
 /* Buttons */
