@@ -1,0 +1,397 @@
+/* Chad Asercion — site styles */
+
+:root {
+  --paper: #eef1ee;
+  --paper-card: #fbfaf6;
+  --ink: #1c231f;
+  --ink-soft: #4b5d52;
+  --line: #d8dcd3;
+  --accent: #c1502b;
+  --accent-ink: #fbfaf6;
+
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --wrap-max: 46rem;
+  --wrap-max-wide: 60rem;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.75rem;
+  --space-4: 3rem;
+  --space-5: 5rem;
+  --radius: 4px;
+}
+
+/* Reset */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.wrap {
+  max-width: var(--wrap-max-wide);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+.section--narrow { max-width: var(--wrap-max); }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.75rem 1rem;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+}
+
+/* Visible focus ring everywhere, including inside buttons/links */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Header / nav */
+.site-header {
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--paper);
+  z-index: 10;
+}
+.site-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.1rem;
+  padding-bottom: 1.1rem;
+}
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.site-nav {
+  display: flex;
+  gap: 1.75rem;
+}
+.site-nav a {
+  text-decoration: none;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+}
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+@media (max-width: 40rem) {
+  .site-nav { gap: 1.1rem; }
+  .site-nav a { font-size: 0.85rem; }
+}
+
+@media (max-width: 30rem) {
+  .site-header__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+  }
+  .site-nav {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+}
+
+/* Hero */
+.hero {
+  padding: var(--space-5) 0 var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+.hero__inner { max-width: 42rem; }
+.hero__eyebrow {
+  margin: 0 0 var(--space-2);
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+.hero__headline {
+  font-size: clamp(2.1rem, 5vw, 3.25rem);
+  letter-spacing: -0.01em;
+}
+.hero__summary {
+  margin: var(--space-3) 0 0;
+  font-size: 1.2rem;
+  color: var(--ink-soft);
+  max-width: 34rem;
+}
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: var(--space-4);
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.btn--primary:hover {
+  background: #a8431f;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.btn--ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Generic section spacing */
+.section {
+  padding: var(--space-5) 0;
+}
+.section--alt {
+  background: var(--paper-card);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.section__heading {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+}
+.section__intro {
+  margin: var(--space-2) 0 0;
+  color: var(--ink-soft);
+  max-width: 34rem;
+}
+
+.prose p {
+  margin: 0 0 1.2em;
+  max-width: 38rem;
+}
+.prose p:last-child { margin-bottom: 0; }
+
+/* Principles grid ("how I work") */
+.principles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: var(--space-4);
+}
+.principle-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+.principle-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.6rem;
+}
+.principle-card p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+}
+
+@media (max-width: 56rem) {
+  .principles-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 36rem) {
+  .principles-grid { grid-template-columns: 1fr; }
+}
+
+/* Experience timeline */
+.timeline {
+  margin-top: var(--space-4);
+  position: relative;
+}
+.timeline-item {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  gap: 1.25rem;
+  position: relative;
+  padding-bottom: var(--space-4);
+}
+.timeline-item:last-child { padding-bottom: 0; }
+
+/* The vertical trail line + waypoint marker for each role */
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: 0.55rem;
+  top: 1.6rem;
+  bottom: -1.75rem;
+  width: 1px;
+  background: var(--line);
+}
+.timeline-item:last-child::before { display: none; }
+
+.timeline-item__marker {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--accent);
+  margin-top: 0.3rem;
+}
+
+.timeline-item__head { margin-bottom: 0.75rem; }
+.timeline-item__head h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.25rem;
+}
+.timeline-item__meta {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+.timeline-item__list {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+.timeline-item__list li {
+  margin-bottom: 0.6rem;
+}
+.timeline-item__list li:last-child { margin-bottom: 0; }
+
+/* Earlier / condensed experience */
+.earlier-experience {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+.earlier-experience__heading {
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+  margin-bottom: var(--space-3);
+}
+.earlier-experience__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+.earlier-experience__role {
+  font-weight: 600;
+  display: block;
+}
+.earlier-experience__meta {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+.earlier-experience__list p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+/* Testimonials */
+.testimonials {
+  margin-top: var(--space-4);
+  display: grid;
+  gap: 1.75rem;
+}
+.testimonial {
+  margin: 0;
+  padding: 1.5rem 0 1.5rem 1.5rem;
+  border-left: 3px solid var(--accent);
+}
+.testimonial blockquote {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.45;
+}
+.testimonial figcaption {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+/* Contact CTA */
+.contact { text-align: left; }
+.contact p {
+  margin: var(--space-2) 0 0;
+  color: var(--ink-soft);
+  font-size: 1.1rem;
+  max-width: 32rem;
+}
+
+/* Footer */
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: var(--space-3) 0;
+}
+.site-footer__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+.site-footer p { margin: 0; }
+.site-footer__links {
+  display: flex;
+  gap: 1.25rem;
+}
+.site-footer__links a {
+  text-decoration: none;
+  color: var(--ink-soft);
+}
+.site-footer__links a:hover,
+.site-footer__links a:focus-visible {
+  color: var(--accent);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn { transition: none; }
+}
