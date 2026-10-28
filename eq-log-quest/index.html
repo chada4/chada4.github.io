@@ -1,0 +1,1764 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>EQ Log Quest</title>
+<style>
+  :root{
+    --bg:#1b140f;
+    --surface:#241c15;
+    --surface-2:#2f251b;
+    --surface-3:#382c1f;
+    --border:#4a3a28;
+    --border-soft:#382c1f;
+    --ink:#f0e6d2;
+    --ink-muted:#b9a688;
+    --ink-faint:#8a7a5f;
+    --gold:#e0b563;
+    --gold-dim:#a9834c;
+    --crimson:#e6746a;
+    --jade:#5fbb96;
+    --cat-1:#3987e5; --cat-2:#d95926; --cat-3:#199e70; --cat-4:#c98500;
+    --cat-5:#d55181; --cat-6:#3fae3f; --cat-7:#9085e9; --cat-8:#e66767;
+    --radius-s:6px; --radius-m:10px; --radius-l:16px;
+    font-family:'Work Sans', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    margin:0;
+    padding-inline:20px;
+    padding-block:28px 48px;
+    min-height:100%;
+  }
+  h1,h2,h3{font-family:'Cinzel', Georgia, serif; font-weight:600; margin:0; text-wrap:balance;}
+  .mono{font-family:'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; font-variant-numeric:tabular-nums;}
+  .wrap{max-width:1180px; margin:0 auto;}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    display:flex; flex-direction:column; gap:18px;
+    padding:28px; border:1px solid var(--border);
+    border-radius:var(--radius-l);
+    background:
+      radial-gradient(120% 160% at 0% 0%, rgba(224,181,99,0.10), transparent 55%),
+      linear-gradient(180deg, var(--surface), var(--surface-2));
+    margin-bottom:22px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(90deg, rgba(240,230,210,0.02) 0 1px, transparent 1px 48px);
+    pointer-events:none;
+  }
+  .hero-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{
+    width:40px; height:40px; border-radius:8px; flex:none;
+    background:linear-gradient(145deg, var(--gold), var(--gold-dim));
+    display:flex; align-items:center; justify-content:center;
+    color:#231a10; font-family:'Cinzel',serif; font-weight:700; font-size:18px;
+    box-shadow:0 2px 0 rgba(0,0,0,0.35);
+  }
+  .brand h1{font-size:1.55rem; letter-spacing:0.01em;}
+  .brand p{margin:2px 0 0; color:var(--ink-muted); font-size:0.88rem;}
+  .hero-desc{max-width:62ch; color:var(--ink-muted); font-size:0.95rem; line-height:1.6;}
+  .hero-desc b{color:var(--ink); font-weight:600;}
+  .hero-desc code{font-family:'JetBrains Mono',monospace; background:var(--surface-3); padding:1px 5px; border-radius:4px; font-size:0.88em; color:var(--ink);}
+
+  .dropzone{
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    padding:16px 18px; border:1.5px dashed var(--border);
+    border-radius:var(--radius-m); background:rgba(0,0,0,0.15);
+    transition:border-color .15s, background .15s;
+  }
+  .dropzone.drag{border-color:var(--gold); background:rgba(224,181,99,0.08);}
+  .dropzone .dz-text{flex:1; min-width:200px;}
+  .dropzone .dz-text strong{display:block; font-size:0.98rem; color:var(--ink);}
+  .dropzone .dz-text span{display:block; font-size:0.82rem; color:var(--ink-faint); margin-top:2px;}
+  .btn{
+    appearance:none; border:1px solid var(--border); background:var(--surface-3);
+    color:var(--ink); padding:9px 16px; border-radius:var(--radius-s);
+    font:inherit; font-size:0.86rem; font-weight:600; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
+  }
+  .btn:hover{border-color:var(--gold-dim);}
+  .btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .btn-gold{background:linear-gradient(180deg, var(--gold), var(--gold-dim)); color:#231a10; border:none;}
+  .btn-gold:hover{filter:brightness(1.06);}
+  .btn-ghost{background:transparent;}
+  .btn-small{padding:5px 10px; font-size:0.76rem; border-radius:999px;}
+  input[type=file]{display:none;}
+
+  .gap-row{display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:0.84rem; color:var(--ink-muted);}
+  .gap-row input[type=range]{accent-color:var(--gold); width:160px;}
+  .gap-row .val{color:var(--ink); font-weight:600;}
+
+  .sample-badge{
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(224,181,99,0.14); border:1px solid var(--gold-dim);
+    color:var(--gold); font-size:0.74rem; font-weight:700; letter-spacing:0.04em;
+    text-transform:uppercase; padding:4px 9px; border-radius:999px;
+  }
+  .sample-badge .dot{width:6px; height:6px; border-radius:50%; background:var(--gold);}
+
+  /* ---------- Combo panel ---------- */
+  .combo-panel{margin-bottom:22px;}
+  .combo-grid{display:flex; flex-direction:column; gap:10px; padding:14px 16px;}
+  .combo-card{
+    border:1px solid var(--border-soft); border-radius:var(--radius-m);
+    padding:12px 14px; cursor:pointer; background:var(--surface-2);
+    display:flex; flex-direction:column; gap:8px; text-align:left; width:100%;
+    font:inherit; color:inherit;
+  }
+  .combo-card:hover{border-color:var(--gold-dim);}
+  .combo-card.active{border-color:var(--gold); background:var(--surface-3);}
+  .combo-head{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .combo-name{font-weight:700; font-size:0.95rem; letter-spacing:0.01em; font-family:'Cinzel',serif;}
+  .combo-stats{display:flex; gap:14px; font-size:0.76rem; color:var(--ink-faint); font-family:'JetBrains Mono',monospace; flex-wrap:wrap;}
+  .combo-stats b{color:var(--ink); font-weight:600;}
+  .stack-bar{display:flex; height:10px; border-radius:99px; overflow:hidden; background:var(--surface-3);}
+  .stack-seg{height:100%;}
+  .combo-legend{display:flex; flex-wrap:wrap; gap:8px 14px; font-size:0.72rem; color:var(--ink-faint);}
+  .combo-legend span.sw{display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:5px; vertical-align:middle;}
+  .combo-chip{
+    display:inline-flex; align-items:center; font-size:0.65rem; font-weight:700; letter-spacing:0.03em;
+    color:var(--ink-faint); background:var(--surface-3); border:1px solid var(--border-soft);
+    padding:2px 7px; border-radius:99px; text-transform:uppercase; white-space:nowrap;
+  }
+  .stack-seg.off-combo{
+    background-image:repeating-linear-gradient(135deg, rgba(0,0,0,0.35) 0 3px, transparent 3px 6px);
+  }
+  .off-combo-flag{
+    font-size:0.62rem; font-weight:700; letter-spacing:0.03em; text-transform:uppercase;
+    color:var(--crimson); border:1px solid var(--crimson); border-radius:99px;
+    padding:1px 6px; margin-left:6px; vertical-align:middle; cursor:help;
+  }
+  .off-combo-note{
+    font-size:0.78rem; color:var(--ink-faint); margin-top:8px; padding:8px 10px;
+    background:var(--surface-2); border:1px solid var(--border-soft); border-radius:var(--radius-s);
+  }
+  .off-combo-note code{color:var(--ink-muted);}
+
+  /* ---------- Summary tiles ---------- */
+  .tiles{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+    gap:12px; margin-bottom:22px;
+  }
+  .tile{
+    background:var(--surface); border:1px solid var(--border-soft);
+    border-radius:var(--radius-m); padding:14px 16px;
+  }
+  .tile .tl-label{font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-faint);}
+  .tile .tl-value{font-size:1.5rem; font-weight:700; margin-top:4px; color:var(--ink);}
+  .tile .tl-value.gold{color:var(--gold);}
+  .tile .tl-value.crimson{color:var(--crimson);}
+  .tile .tl-value.jade{color:var(--jade);}
+  .tile .tl-sub{font-size:0.76rem; color:var(--ink-faint); margin-top:2px;}
+
+  /* ---------- Workspace ---------- */
+  .workspace{display:grid; grid-template-columns:340px 1fr; gap:18px; align-items:start;}
+  @media (max-width:820px){ .workspace{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--surface); border:1px solid var(--border-soft);
+    border-radius:var(--radius-l); overflow:hidden;
+  }
+  .panel-head{
+    padding:14px 16px; border-bottom:1px solid var(--border-soft);
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    flex-wrap:wrap; row-gap:8px;
+  }
+  .panel-head h2{font-size:1rem; letter-spacing:0.01em;}
+  .panel-head .count{font-size:0.76rem; color:var(--ink-faint);}
+  .panel-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+
+  .list-hint{margin:0; padding:8px 16px; font-size:0.72rem; color:var(--ink-faint); border-bottom:1px solid var(--border-soft);}
+  .fight-list{list-style:none; margin:0; padding:6px; max-height:640px; overflow-y:auto;}
+  .fight-row{
+    display:flex; flex-direction:column; gap:3px;
+    width:100%; text-align:left; background:transparent; border:1px solid transparent;
+    border-radius:var(--radius-s); padding:10px 12px; cursor:pointer; color:inherit; font:inherit;
+  }
+  .fight-row:hover{background:var(--surface-2);}
+  .fight-row.active{background:var(--surface-3); border-color:var(--gold-dim);}
+  .fr-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+  .fr-target{font-weight:600; font-size:0.9rem;}
+  .fr-dps{font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--gold); font-size:0.92rem;}
+  .fr-meta{display:flex; gap:10px; font-size:0.74rem; color:var(--ink-faint); font-family:'JetBrains Mono',monospace;}
+
+  .detail-body{padding:18px 20px 22px;}
+  .dt-head{display:flex; flex-wrap:wrap; align-items:flex-end; gap:20px 32px; margin-bottom:18px;}
+  .dt-headline .hl-label{font-size:0.72rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-faint);}
+  .dt-headline .hl-value{font-family:'JetBrains Mono',monospace; font-size:2.1rem; font-weight:700; color:var(--gold); line-height:1.1;}
+  .dt-stat{min-width:90px;}
+  .dt-stat .hl-label{font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-faint);}
+  .dt-stat .hl-value{font-family:'JetBrains Mono',monospace; font-size:1.15rem; font-weight:600; color:var(--ink);}
+
+  .section-title{
+    font-size:0.78rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-faint);
+    margin:26px 0 10px; display:flex; align-items:center; gap:8px;
+  }
+  .section-title::after{content:""; flex:1; height:1px; background:var(--border-soft);}
+
+  /* chart */
+  .chart-wrap{position:relative; background:var(--surface-2); border:1px solid var(--border-soft); border-radius:var(--radius-m); padding:12px 14px 8px;}
+  svg.chart{width:100%; height:180px; display:block; overflow:visible;}
+  .chart-tip{
+    position:absolute; pointer-events:none; background:var(--surface-3); border:1px solid var(--border);
+    border-radius:6px; padding:6px 9px; font-size:0.76rem; font-family:'JetBrains Mono',monospace;
+    transform:translate(-50%,-115%); white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.4);
+  }
+
+  /* ability table */
+  table.abl{width:100%; min-width:620px; border-collapse:collapse; font-size:0.84rem;}
+  table.abl th{
+    text-align:left; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--ink-faint); font-weight:600; padding:0 8px 8px; border-bottom:1px solid var(--border-soft);
+  }
+  table.abl td{padding:8px 8px; border-bottom:1px solid var(--border-soft); vertical-align:middle;}
+  table.abl tr:last-child td{border-bottom:none;}
+  table.abl td.num{font-family:'JetBrains Mono',monospace; text-align:right; font-variant-numeric:tabular-nums;}
+  .abl-name{display:flex; align-items:center; gap:8px;}
+  .swatch{width:9px; height:9px; border-radius:2px; flex:none;}
+  .bar-cell{width:110px;}
+  .bar-track{height:6px; background:var(--surface-3); border-radius:99px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:99px;}
+  .overflow-x{overflow-x:auto;}
+
+  .twocol{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:640px){ .twocol{grid-template-columns:1fr;} }
+
+  .mini-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px;}
+  .mini-row{display:flex; align-items:center; gap:10px; font-size:0.84rem;}
+  .mini-row .mini-name{flex:1; color:var(--ink-muted); min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .mini-row .mini-val{font-family:'JetBrains Mono',monospace; font-weight:600;}
+  .mini-track{flex:1.4; height:6px; background:var(--surface-3); border-radius:99px; overflow:hidden;}
+  .mini-fill{height:100%; border-radius:99px;}
+
+  .empty-note{color:var(--ink-faint); font-size:0.86rem; padding:20px; text-align:center;}
+
+  footer.foot{margin-top:26px; text-align:center; color:var(--ink-faint); font-size:0.78rem;}
+  footer.foot a{color:var(--ink-muted);}
+
+  [hidden]{display:none !important;}
+
+  @media (max-width:480px){
+    .dt-headline .hl-value{font-size:1.7rem;}
+    .hero{padding:20px;}
+    .panel-head{padding:12px;}
+    .panel-head h2{font-size:0.92rem;}
+    .panel-actions{gap:6px;}
+    .panel-actions select, .panel-actions .btn-small{font-size:0.68rem; padding:4px 7px;}
+    .btn{padding:8px 12px; font-size:0.82rem;}
+    .dz-text strong{font-size:0.9rem;}
+  }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="hero-top">
+      <div class="brand">
+        <div class="brand-mark">EQ</div>
+        <div>
+          <h1>EQ Log Quest</h1>
+          <p>Combat log parser &amp; DPS calculator for EverQuest &amp; EverQuest&nbsp;Legends</p>
+        </div>
+      </div>
+      <span class="sample-badge" id="sampleBadge"><span class="dot"></span>Demo data loaded</span>
+    </div>
+    <p class="hero-desc">Drop in a raw <b>chat log .txt file</b> and it's parsed entirely in your browser &mdash; nothing is uploaded anywhere. It splits your session into fights, then breaks down damage by ability, accuracy, crit rate, damage taken and healing for each one. If your log has <code>/who</code> lines showing a 3-class combo, it also groups everything by combo and by which class each hit came from.</p>
+
+    <div class="dropzone" id="dropzone">
+      <div class="dz-text">
+        <strong id="dzTitle">Drop a log file here, or choose one</strong>
+        <span id="dzSub">.txt log files exported from EverQuest / EverQuest Legends</span>
+      </div>
+      <button class="btn btn-gold" id="chooseBtn" type="button">Choose file&hellip;</button>
+      <button class="btn btn-ghost" id="sampleBtn" type="button">Reload demo</button>
+      <input type="file" id="fileInput" accept=".txt,.log,text/plain">
+    </div>
+
+    <div class="gap-row">
+      <label for="gapSlider">Split fights after a gap of</label>
+      <input type="range" id="gapSlider" min="5" max="60" step="1" value="15">
+      <span class="val" id="gapVal">15s</span>
+      <span>of no combat activity</span>
+    </div>
+  </div>
+
+  <div class="tiles" id="tiles" hidden></div>
+
+  <div class="panel combo-panel" id="comboPanel" hidden>
+    <div class="panel-head">
+      <h2>By class combo</h2>
+      <span class="panel-actions">
+        <span class="count" id="comboCount"></span>
+        <select class="btn btn-ghost btn-small" id="comboSortSel">
+          <option value="total">Sort: Total damage</option>
+          <option value="fights">Sort: Fight count</option>
+          <option value="dps">Sort: DPS</option>
+          <option value="recent">Sort: Most recent</option>
+        </select>
+        <button class="btn btn-ghost btn-small" id="comboToggle" type="button" hidden></button>
+      </span>
+    </div>
+    <div class="combo-grid" id="comboList"></div>
+  </div>
+
+  <div class="workspace" id="workspace" hidden>
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Fights</h2>
+        <span class="panel-actions">
+          <span class="count" id="fightCount">0</span>
+          <select class="btn btn-ghost btn-small" id="fightSortSel">
+            <option value="recent">Sort: Most recent</option>
+            <option value="damage">Sort: Damage done</option>
+            <option value="dps">Sort: DPS</option>
+            <option value="duration">Sort: Duration</option>
+          </select>
+          <select class="btn btn-ghost btn-small" id="zoneFilterSel" hidden></select>
+          <button class="btn btn-ghost btn-small" id="fightClearSel" type="button" hidden>All fights</button>
+          <button class="btn btn-ghost btn-small" id="fightToggle" type="button" hidden></button>
+        </span>
+      </div>
+      <p class="list-hint">Click to select one · Shift-click for a range · Ctrl/Cmd-click to add or remove</p>
+      <ul class="fight-list" id="fightList"></ul>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2 id="detailTitle">Fight detail</h2>
+        <span class="count" id="detailMeta"></span>
+      </div>
+      <div class="detail-body" id="detailBody">
+        <p class="empty-note">Select a fight from the list to see its breakdown.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">Parsing happens locally in your browser. Character name and target names are read directly from your log file.</footer>
+</div>
+
+<script>
+const SAMPLE_LOG = "[Mon Sep 21 11:23:46 2026] Players in EverQuest Legends:\n[Mon Sep 21 11:23:46 2026] ---------------------------\n[Mon Sep 21 11:23:46 2026] [50 MNK/BRD/SHM] Codaa (Kerran) <Refugees of Marr> ZONE: The Arena (arena)  \n[Mon Sep 21 11:23:46 2026] There is 1 player in EverQuest Legends.\n[Mon Sep 21 11:23:48 2026] Auto attack is on.\n[Mon Sep 21 11:23:48 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:23:48 2026] You kick Test Sixty for 340 points of damage. (Critical)\n[Mon Sep 21 11:23:48 2026] You strike Test Sixty for 120 points of damage.\n[Mon Sep 21 11:23:48 2026] You try to strike Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:23:48 2026] You crush Test Sixty for 14 points of damage.\n[Mon Sep 21 11:23:48 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:23:49 2026] You feel provoked.\n[Mon Sep 21 11:23:49 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:23:49 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:23:50 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:23:50 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:23:51 2026] You punch Test Sixty for 70 points of damage.\n[Mon Sep 21 11:23:51 2026] You punch Test Sixty for 136 points of damage.\n[Mon Sep 21 11:23:51 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:23:51 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:23:51 2026] Bombargo tells general1:1, 'save token for your last class in sky'\n[Mon Sep 21 11:23:52 2026] You strike Test Sixty for 72 points of damage. (Critical)\n[Mon Sep 21 11:23:52 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:23:52 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:23:52 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:23:52 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:23:53 2026] You punch Test Sixty for 93 points of damage.\n[Mon Sep 21 11:23:53 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:23:54 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:23:54 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:23:54 2026] You punch Test Sixty for 138 points of damage.\n[Mon Sep 21 11:23:55 2026] You feel provoked.\n[Mon Sep 21 11:23:55 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:23:55 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:23:55 2026] You crush Test Sixty for 38 points of damage.\n[Mon Sep 21 11:23:55 2026] You strike Test Sixty for 85 points of damage.\n[Mon Sep 21 11:23:56 2026] You punch Test Sixty for 14 points of damage.\n[Mon Sep 21 11:23:56 2026] You punch Test Sixty for 114 points of damage.\n[Mon Sep 21 11:23:56 2026] You crush Test Sixty for 44 points of damage. (Critical)\n[Mon Sep 21 11:23:57 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:23:57 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:23:57 2026] Devrious tells general1:1, 'you get both'\n[Mon Sep 21 11:23:58 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:23:58 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:23:58 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:23:58 2026] You try to kick Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:23:58 2026] You kick Test Sixty for 305 points of damage.\n[Mon Sep 21 11:23:59 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:23:59 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:23:59 2026] You punch Test Sixty for 167 points of damage. (Critical)\n[Mon Sep 21 11:23:59 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:23:59 2026] Aerux tells general1:1, 'there is no choice'\n[Mon Sep 21 11:24:00 2026] You punch Test Sixty for 21 points of damage.\n[Mon Sep 21 11:24:00 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:01 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:24:01 2026] You crush Test Sixty for 13 points of damage.\n[Mon Sep 21 11:24:01 2026] You feel provoked.\n[Mon Sep 21 11:24:01 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:24:01 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:24:01 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:01 2026] You punch Test Sixty for 21 points of damage.\n[Mon Sep 21 11:24:01 2026] You punch Test Sixty for 24 points of damage.\n[Mon Sep 21 11:24:02 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:03 2026] You strike Test Sixty for 95 points of damage.\n[Mon Sep 21 11:24:03 2026] You punch Test Sixty for 130 points of damage. (Critical)\n[Mon Sep 21 11:24:03 2026] You kick Test Sixty for 205 points of damage.\n[Mon Sep 21 11:24:03 2026] You kick Test Sixty for 295 points of damage.\n[Mon Sep 21 11:24:03 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:03 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:04 2026] You punch Test Sixty for 56 points of damage.\n[Mon Sep 21 11:24:04 2026] You punch Test Sixty for 71 points of damage.\n[Mon Sep 21 11:24:05 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:05 2026] You crush Test Sixty for 22 points of damage.\n[Mon Sep 21 11:24:05 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:05 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:24:06 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:24:06 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:06 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:06 2026] You punch Test Sixty for 81 points of damage.\n[Mon Sep 21 11:24:06 2026] You strike Test Sixty for 125 points of damage.\n[Mon Sep 21 11:24:07 2026] You feel provoked.\n[Mon Sep 21 11:24:07 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:24:07 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:24:07 2026] You try to crush Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:24:07 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:07 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:07 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:08 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:24:09 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:09 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:24:09 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:10 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:10 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:10 2026] You strike Test Sixty for 85 points of damage.\n[Mon Sep 21 11:24:10 2026] You try to strike Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:24:10 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:10 2026] You try to crush Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:24:11 2026] You punch Test Sixty for 56 points of damage.\n[Mon Sep 21 11:24:11 2026] You punch Test Sixty for 70 points of damage.\n[Mon Sep 21 11:24:11 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:24:12 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:12 2026] You punch Test Sixty for 130 points of damage.\n[Mon Sep 21 11:24:12 2026] You kick Test Sixty for 85 points of damage.\n[Mon Sep 21 11:24:12 2026] You kick Test Sixty for 73 points of damage. (Critical)\n[Mon Sep 21 11:24:13 2026] Zexu tells general1:1, 'yeah, you get both; it's poorly worded'\n[Mon Sep 21 11:24:13 2026] You crush Test Sixty for 27 points of damage.\n[Mon Sep 21 11:24:13 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:13 2026] You feel provoked.\n[Mon Sep 21 11:24:13 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:24:13 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:24:13 2026] You strike Test Sixty for 110 points of damage.\n[Mon Sep 21 11:24:13 2026] You punch Test Sixty for 15 points of damage.\n[Mon Sep 21 11:24:13 2026] You punch Test Sixty for 40 points of damage.\n[Mon Sep 21 11:24:14 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:24:14 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:14 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:15 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:24:15 2026] You crush Test Sixty for 8 points of damage.\n[Mon Sep 21 11:24:16 2026] You punch Test Sixty for 99 points of damage.\n[Mon Sep 21 11:24:16 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:17 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:24:17 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:24:17 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:17 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:17 2026] You punch Test Sixty for 153 points of damage.\n[Mon Sep 21 11:24:17 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:24:17 2026] You strike Test Sixty for 110 points of damage.\n[Mon Sep 21 11:24:17 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:24:17 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:24:18 2026] You crush Test Sixty for 15 points of damage.\n[Mon Sep 21 11:24:18 2026] You crush Test Sixty for 13 points of damage.\n[Mon Sep 21 11:24:18 2026] You punch Test Sixty for 37 points of damage.\n[Mon Sep 21 11:24:18 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:18 2026] Nejen tells general1:1, 'I thought it was a pick as well, its both'\n[Mon Sep 21 11:24:19 2026] You feel provoked.\n[Mon Sep 21 11:24:19 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:24:19 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:24:19 2026] You punch Test Sixty for 136 points of damage.\n[Mon Sep 21 11:24:19 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:20 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:20 2026] You punch Test Sixty for 146 points of damage.\n[Mon Sep 21 11:24:20 2026] Test Sixty punches YOU for 82 points of damage. (Riposte)\n[Mon Sep 21 11:24:20 2026] You strike Test Sixty for 110 points of damage.\n[Mon Sep 21 11:24:22 2026] You punch Test Sixty for 72 points of damage.\n[Mon Sep 21 11:24:22 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:24:22 2026] You kick Test Sixty for 153 points of damage. (Critical)\n[Mon Sep 21 11:24:22 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:24:22 2026] You try to crush Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:24:22 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:24:23 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:23 2026] You punch Test Sixty for 144 points of damage.\n[Mon Sep 21 11:24:24 2026] You strike Test Sixty for 70 points of damage.\n[Mon Sep 21 11:24:24 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:24:24 2026] You punch Test Sixty for 63 points of damage.\n[Mon Sep 21 11:24:24 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:25 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:25 2026] You feel provoked.\n[Mon Sep 21 11:24:25 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:24:25 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:24:25 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:26 2026] You punch Test Sixty for 89 points of damage.\n[Mon Sep 21 11:24:27 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:24:27 2026] You kick Test Sixty for 475 points of damage.\n[Mon Sep 21 11:24:28 2026] You strike Test Sixty for 180 points of damage.\n[Mon Sep 21 11:24:28 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:24:28 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:28 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:28 2026] You punch Test Sixty for 113 points of damage.\n[Mon Sep 21 11:24:29 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:29 2026] You punch Test Sixty for 64 points of damage.\n[Mon Sep 21 11:24:29 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:30 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:30 2026] You punch Test Sixty for 14 points of damage.\n[Mon Sep 21 11:24:30 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:30 2026] You crush Test Sixty for 17 points of damage.\n[Mon Sep 21 11:24:31 2026] You strike Test Sixty for 70 points of damage.\n[Mon Sep 21 11:24:31 2026] You strike Test Sixty for 15 points of damage.\n[Mon Sep 21 11:24:31 2026] You feel provoked.\n[Mon Sep 21 11:24:31 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:24:31 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:24:31 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:31 2026] You punch Test Sixty for 73 points of damage.\n[Mon Sep 21 11:24:32 2026] You crush Test Sixty for 39 points of damage. (Critical)\n[Mon Sep 21 11:24:32 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:32 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:24:32 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:33 2026] You crush Test Sixty for 21 points of damage.\n[Mon Sep 21 11:24:34 2026] You punch Test Sixty for 107 points of damage. (Critical)\n[Mon Sep 21 11:24:34 2026] You punch Test Sixty for 82 points of damage.\n[Mon Sep 21 11:24:34 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:34 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:35 2026] You strike Test Sixty for 185 points of damage.\n[Mon Sep 21 11:24:35 2026] You strike Test Sixty for 156 points of damage. (Critical)\n[Mon Sep 21 11:24:35 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:24:35 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:36 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:36 2026] You punch Test Sixty for 43 points of damage.\n[Mon Sep 21 11:24:37 2026] You kick Test Sixty for 350 points of damage.\n[Mon Sep 21 11:24:37 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:37 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:37 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:37 2026] You feel provoked.\n[Mon Sep 21 11:24:37 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:24:37 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:24:38 2026] You try to strike Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:24:38 2026] You punch Test Sixty for 116 points of damage.\n[Mon Sep 21 11:24:38 2026] Caeamil tells general1:1, 'Gotcha, I see I get both now. '\n[Mon Sep 21 11:24:38 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:38 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:40 2026] You punch Test Sixty for 41 points of damage.\n[Mon Sep 21 11:24:40 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:24:40 2026] You crush Test Sixty for 13 points of damage.\n[Mon Sep 21 11:24:41 2026] You punch Test Sixty for 66 points of damage.\n[Mon Sep 21 11:24:41 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:41 2026] You kick Test Sixty for 175 points of damage.\n[Mon Sep 21 11:24:42 2026] You strike Test Sixty for 150 points of damage.\n[Mon Sep 21 11:24:42 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:24:42 2026] You punch Test Sixty for 153 points of damage.\n[Mon Sep 21 11:24:42 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:43 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:43 2026] You feel provoked.\n[Mon Sep 21 11:24:43 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:24:43 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:24:44 2026] You crush Test Sixty for 23 points of damage.\n[Mon Sep 21 11:24:44 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:44 2026] Test Sixty punches YOU for 54 points of damage. (Riposte)\n[Mon Sep 21 11:24:45 2026] You try to crush Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:24:45 2026] You strike Test Sixty for 5 points of damage.\n[Mon Sep 21 11:24:45 2026] You punch Test Sixty for 136 points of damage. (Critical)\n[Mon Sep 21 11:24:46 2026] You kick Test Sixty for 370 points of damage.\n[Mon Sep 21 11:24:46 2026] You kick Test Sixty for 295 points of damage.\n[Mon Sep 21 11:24:46 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:24:46 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:47 2026] You punch Test Sixty for 238 points of damage. (Critical)\n[Mon Sep 21 11:24:48 2026] You punch Test Sixty for 34 points of damage.\n[Mon Sep 21 11:24:48 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:49 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:24:49 2026] You strike Test Sixty for 51 points of damage. (Critical)\n[Mon Sep 21 11:24:49 2026] You punch Test Sixty for 127 points of damage.\n[Mon Sep 21 11:24:49 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:24:49 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:49 2026] You feel provoked.\n[Mon Sep 21 11:24:49 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:24:49 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:24:50 2026] You punch Test Sixty for 49 points of damage.\n[Mon Sep 21 11:24:50 2026] You punch Test Sixty for 75 points of damage.\n[Mon Sep 21 11:24:51 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:24:51 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:24:51 2026] You kick Test Sixty for 165 points of damage.\n[Mon Sep 21 11:24:51 2026] You punch Test Sixty for 125 points of damage.\n[Mon Sep 21 11:24:51 2026] You punch Test Sixty for 17 points of damage.\n[Mon Sep 21 11:24:52 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:52 2026] You try to crush Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:24:52 2026] Test Sixty tries to punch YOU, but YOU dodge!\n[Mon Sep 21 11:24:52 2026] You hit Test Sixty for 42 points of magic damage by Lifebite.\n[Mon Sep 21 11:24:52 2026] Test Sixty staggers.\n[Mon Sep 21 11:24:52 2026] You healed Codaa for 41 (42) hit points by Lifebite.\n[Mon Sep 21 11:24:52 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:53 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:54 2026] Test Sixty punches YOU for 173 points of damage. (Riposte)\n[Mon Sep 21 11:24:54 2026] You punch Test Sixty for 107 points of damage. (Critical)\n[Mon Sep 21 11:24:54 2026] You punch Test Sixty for 24 points of damage.\n[Mon Sep 21 11:24:55 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:55 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:24:55 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:24:55 2026] You feel provoked.\n[Mon Sep 21 11:24:55 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:24:55 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:24:56 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:24:56 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:56 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:56 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:24:57 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:57 2026] You punch Test Sixty for 43 points of damage.\n[Mon Sep 21 11:24:57 2026] Test Sixty punches YOU for 54 points of damage. (Riposte)\n[Mon Sep 21 11:24:59 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:24:59 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:59 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:24:59 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:24:59 2026] You try to strike Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:25:00 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:00 2026] You punch Test Sixty for 40 points of damage.\n[Mon Sep 21 11:25:00 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:01 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:01 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:01 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:25:01 2026] You kick Test Sixty for 265 points of damage.\n[Mon Sep 21 11:25:01 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:01 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:01 2026] You feel provoked.\n[Mon Sep 21 11:25:01 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:25:01 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:25:02 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:03 2026] You crush Test Sixty for 17 points of damage.\n[Mon Sep 21 11:25:03 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:03 2026] You strike Test Sixty for 75 points of damage.\n[Mon Sep 21 11:25:03 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:25:03 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:25:04 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:05 2026] You punch Test Sixty for 149 points of damage.\n[Mon Sep 21 11:25:05 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:25:05 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:06 2026] You punch Test Sixty for 59 points of damage.\n[Mon Sep 21 11:25:06 2026] You punch Test Sixty for 14 points of damage.\n[Mon Sep 21 11:25:06 2026] You kick Test Sixty for 150 points of damage.\n[Mon Sep 21 11:25:06 2026] You kick Test Sixty for 295 points of damage.\n[Mon Sep 21 11:25:07 2026] You try to strike Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:25:07 2026] You strike Test Sixty for 35 points of damage.\n[Mon Sep 21 11:25:07 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:07 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:07 2026] You punch Test Sixty for 18 points of damage.\n[Mon Sep 21 11:25:07 2026] You punch Test Sixty for 73 points of damage. (Critical)\n[Mon Sep 21 11:25:07 2026] You feel provoked.\n[Mon Sep 21 11:25:07 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:25:07 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:25:08 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:08 2026] You punch Test Sixty for 95 points of damage.\n[Mon Sep 21 11:25:09 2026] You punch Test Sixty for 70 points of damage.\n[Mon Sep 21 11:25:09 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:09 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:10 2026] You strike Test Sixty for 165 points of damage.\n[Mon Sep 21 11:25:10 2026] You strike Test Sixty for 84 points of damage. (Critical)\n[Mon Sep 21 11:25:10 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:25:11 2026] You kick Test Sixty for 535 points of damage.\n[Mon Sep 21 11:25:11 2026] You kick Test Sixty for 515 points of damage.\n[Mon Sep 21 11:25:11 2026] You crush Test Sixty for 10 points of damage.\n[Mon Sep 21 11:25:11 2026] You crush Test Sixty for 15 points of damage.\n[Mon Sep 21 11:25:12 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:12 2026] You punch Test Sixty for 59 points of damage.\n[Mon Sep 21 11:25:12 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:13 2026] You punch Test Sixty for 130 points of damage. (Critical)\n[Mon Sep 21 11:25:13 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:25:13 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:25:13 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:13 2026] You feel provoked.\n[Mon Sep 21 11:25:13 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:25:13 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:25:14 2026] You punch Test Sixty for 56 points of damage.\n[Mon Sep 21 11:25:14 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:25:15 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:15 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:15 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:16 2026] You try to kick Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:25:16 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:25:16 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:16 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:25:16 2026] You punch Test Sixty for 64 points of damage.\n[Mon Sep 21 11:25:17 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:25:17 2026] You strike Test Sixty for 210 points of damage.\n[Mon Sep 21 11:25:18 2026] You punch Test Sixty for 162 points of damage. (Critical)\n[Mon Sep 21 11:25:19 2026] You punch Test Sixty for 130 points of damage. (Critical)\n[Mon Sep 21 11:25:19 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:19 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:25:19 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:19 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:25:19 2026] You feel provoked.\n[Mon Sep 21 11:25:19 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:25:19 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:25:20 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:20 2026] You kick Test Sixty for 520 points of damage.\n[Mon Sep 21 11:25:20 2026] You strike Test Sixty for 129 points of damage. (Critical)\n[Mon Sep 21 11:25:20 2026] You strike Test Sixty for 70 points of damage.\n[Mon Sep 21 11:25:21 2026] You punch Test Sixty for 103 points of damage.\n[Mon Sep 21 11:25:22 2026] You punch Test Sixty for 84 points of damage.\n[Mon Sep 21 11:25:23 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:23 2026] You crush Test Sixty for 33 points of damage.\n[Mon Sep 21 11:25:24 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:24 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:25:24 2026] You strike Test Sixty for 110 points of damage.\n[Mon Sep 21 11:25:24 2026] You crush Test Sixty for 56 points of damage. (Critical)\n[Mon Sep 21 11:25:25 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:25 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:25 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:25:25 2026] You kick Test Sixty for 25 points of damage.\n[Mon Sep 21 11:25:26 2026] You feel provoked.\n[Mon Sep 21 11:25:26 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:25:26 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:25:26 2026] You crush Test Sixty for 21 points of damage.\n[Mon Sep 21 11:25:26 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:26 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:27 2026] Test Sixty punches YOU for 103 points of damage. (Riposte)\n[Mon Sep 21 11:25:27 2026] Your wounds are gone.\n[Mon Sep 21 11:25:27 2026] Test Sixty healed you for 103 (4691) hit points by Full Heal.\n[Mon Sep 21 11:25:27 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:27 2026] You try to punch Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:25:27 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:25:28 2026] You strike Test Sixty for 110 points of damage.\n[Mon Sep 21 11:25:28 2026] You strike Test Sixty for 115 points of damage.\n[Mon Sep 21 11:25:28 2026] You punch Test Sixty for 33 points of damage.\n[Mon Sep 21 11:25:28 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:28 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:29 2026] You punch Test Sixty for 153 points of damage.\n[Mon Sep 21 11:25:29 2026] You punch Test Sixty for 30 points of damage.\n[Mon Sep 21 11:25:29 2026] You punch Test Sixty for 73 points of damage. (Critical)\n[Mon Sep 21 11:25:30 2026] You crush Test Sixty for 34 points of damage. (Critical)\n[Mon Sep 21 11:25:30 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:25:31 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:25:31 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:31 2026] You strike Test Sixty for 5 points of damage.\n[Mon Sep 21 11:25:31 2026] You strike Test Sixty for 70 points of damage.\n[Mon Sep 21 11:25:31 2026] You crush Test Sixty for 36 points of damage.\n[Mon Sep 21 11:25:31 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:32 2026] You feel provoked.\n[Mon Sep 21 11:25:32 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:25:32 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:25:32 2026] You punch Test Sixty for 130 points of damage. (Critical)\n[Mon Sep 21 11:25:32 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:32 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:33 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:33 2026] You punch Test Sixty for 46 points of damage.\n[Mon Sep 21 11:25:34 2026] You crush Test Sixty for 36 points of damage.\n[Mon Sep 21 11:25:34 2026] You punch Test Sixty for 97 points of damage.\n[Mon Sep 21 11:25:34 2026] You strike Test Sixty for 5 points of damage.\n[Mon Sep 21 11:25:35 2026] You crush Test Sixty for 19 points of damage.\n[Mon Sep 21 11:25:35 2026] You crush Test Sixty for 30 points of damage.\n[Mon Sep 21 11:25:35 2026] You kick Test Sixty for 425 points of damage.\n[Mon Sep 21 11:25:35 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:35 2026] You punch Test Sixty for 125 points of damage.\n[Mon Sep 21 11:25:36 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:36 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:38 2026] You strike Test Sixty for 110 points of damage.\n[Mon Sep 21 11:25:38 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:38 2026] You feel provoked.\n[Mon Sep 21 11:25:38 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:25:38 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:25:38 2026] You try to crush Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:25:38 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:39 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:25:39 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:40 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:40 2026] You kick Test Sixty for 645 points of damage.\n[Mon Sep 21 11:25:41 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:25:41 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:25:41 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:41 2026] Channels: 1=general1(210), 2=RL(1)\n[Mon Sep 21 11:25:42 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:43 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:44 2026] You punch Test Sixty for 43 points of damage.\n[Mon Sep 21 11:25:44 2026] You punch Test Sixty for 99 points of damage.\n[Mon Sep 21 11:25:44 2026] You feel provoked.\n[Mon Sep 21 11:25:44 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:25:44 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:25:45 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:45 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:25:45 2026] You try to strike Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:25:45 2026] You punch Test Sixty for 88 points of damage.\n[Mon Sep 21 11:25:45 2026] You punch Test Sixty for 101 points of damage.\n[Mon Sep 21 11:25:45 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:25:46 2026] You crush Test Sixty for 29 points of damage.\n[Mon Sep 21 11:25:46 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:46 2026] You punch Test Sixty for 46 points of damage.\n[Mon Sep 21 11:25:47 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:47 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:47 2026] You punch Test Sixty for 43 points of damage.\n[Mon Sep 21 11:25:48 2026] You strike Test Sixty for 90 points of damage.\n[Mon Sep 21 11:25:48 2026] Test Sixty punches YOU for 103 points of damage. (Riposte)\n[Mon Sep 21 11:25:48 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:49 2026] You crush Test Sixty for 14 points of damage.\n[Mon Sep 21 11:25:49 2026] You try to crush Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:25:50 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:25:50 2026] You punch Test Sixty for 73 points of damage.\n[Mon Sep 21 11:25:50 2026] You feel provoked.\n[Mon Sep 21 11:25:50 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:25:50 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:25:50 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:25:50 2026] You kick Test Sixty for 295 points of damage.\n[Mon Sep 21 11:25:51 2026] You punch Test Sixty for 17 points of damage.\n[Mon Sep 21 11:25:51 2026] Test Sixty tries to punch YOU, but YOU block!\n[Mon Sep 21 11:25:51 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:51 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:52 2026] You strike Test Sixty for 240 points of damage.\n[Mon Sep 21 11:25:52 2026] You strike Test Sixty for 150 points of damage.\n[Mon Sep 21 11:25:52 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:25:52 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:53 2026] You crush Test Sixty for 32 points of damage. (Critical)\n[Mon Sep 21 11:25:53 2026] You punch Test Sixty for 14 points of damage.\n[Mon Sep 21 11:25:53 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:25:54 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:54 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:54 2026] You punch Test Sixty for 91 points of damage.\n[Mon Sep 21 11:25:54 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:55 2026] You kick Test Sixty for 295 points of damage.\n[Mon Sep 21 11:25:55 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:25:55 2026] You strike Test Sixty for 110 points of damage.\n[Mon Sep 21 11:25:55 2026] You crush Test Sixty for 44 points of damage. (Critical)\n[Mon Sep 21 11:25:56 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:25:56 2026] You feel provoked.\n[Mon Sep 21 11:25:56 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:25:56 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:25:57 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:25:57 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:57 2026] Test Sixty punches YOU for 82 points of damage. (Riposte)\n[Mon Sep 21 11:25:57 2026] Your wounds are gone.\n[Mon Sep 21 11:25:57 2026] Test Sixty healed you for 159 (4691) hit points by Full Heal.\n[Mon Sep 21 11:25:58 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:25:58 2026] You punch Test Sixty for 150 points of damage.\n[Mon Sep 21 11:25:58 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:25:59 2026] You strike Test Sixty for 185 points of damage.\n[Mon Sep 21 11:25:59 2026] You punch Test Sixty for 73 points of damage.\n[Mon Sep 21 11:25:59 2026] You crush Test Sixty for 35 points of damage.\n[Mon Sep 21 11:26:00 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:26:00 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:02 2026] You punch Test Sixty for 177 points of damage. (Critical)\n[Mon Sep 21 11:26:02 2026] You feel provoked.\n[Mon Sep 21 11:26:02 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:26:02 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:26:02 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:02 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:26:02 2026] You try to strike Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:26:03 2026] You try to punch Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:26:03 2026] You try to punch Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:26:04 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:04 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:26:05 2026] You kick Test Sixty for 130 points of damage.\n[Mon Sep 21 11:26:05 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:26:05 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:05 2026] You crush Test Sixty for 6 points of damage.\n[Mon Sep 21 11:26:05 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:26:05 2026] You punch Test Sixty for 79 points of damage.\n[Mon Sep 21 11:26:06 2026] You strike Test Sixty for 47 points of damage. (Critical)\n[Mon Sep 21 11:26:06 2026] You strike Test Sixty for 5 points of damage.\n[Mon Sep 21 11:26:06 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:26:06 2026] You punch Test Sixty for 138 points of damage.\n[Mon Sep 21 11:26:08 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:08 2026] You crush Test Sixty for 10 points of damage.\n[Mon Sep 21 11:26:08 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:26:08 2026] You feel provoked.\n[Mon Sep 21 11:26:08 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:26:08 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:26:09 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:09 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:10 2026] You kick Test Sixty for 295 points of damage.\n[Mon Sep 21 11:26:10 2026] You strike Test Sixty for 130 points of damage.\n[Mon Sep 21 11:26:10 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:10 2026] You crush Test Sixty for 20 points of damage.\n[Mon Sep 21 11:26:11 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:12 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:12 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:26:12 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:13 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:13 2026] You strike Test Sixty for 110 points of damage.\n[Mon Sep 21 11:26:14 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:14 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:26:14 2026] You feel provoked.\n[Mon Sep 21 11:26:14 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:26:14 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:26:14 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:14 2026] You kick Test Sixty for 100 points of damage.\n[Mon Sep 21 11:26:15 2026] You punch Test Sixty for 59 points of damage.\n[Mon Sep 21 11:26:15 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:26:16 2026] You crush Test Sixty for 42 points of damage.\n[Mon Sep 21 11:26:16 2026] You punch Test Sixty for 37 points of damage.\n[Mon Sep 21 11:26:16 2026] You punch Test Sixty for 49 points of damage.\n[Mon Sep 21 11:26:17 2026] You strike Test Sixty for 105 points of damage.\n[Mon Sep 21 11:26:17 2026] You try to strike Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:26:17 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:26:17 2026] You punch Test Sixty for 23 points of damage.\n[Mon Sep 21 11:26:17 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:17 2026] You punch Test Sixty for 81 points of damage.\n[Mon Sep 21 11:26:18 2026] You punch Test Sixty for 47 points of damage.\n[Mon Sep 21 11:26:18 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:19 2026] You kick Test Sixty for 175 points of damage.\n[Mon Sep 21 11:26:19 2026] You punch Test Sixty for 165 points of damage. (Critical)\n[Mon Sep 21 11:26:19 2026] Test Sixty tries to punch YOU, but YOU block!\n[Mon Sep 21 11:26:20 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:26:20 2026] You feel provoked.\n[Mon Sep 21 11:26:20 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:26:20 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:26:20 2026] You strike Test Sixty for 51 points of damage. (Critical)\n[Mon Sep 21 11:26:21 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:21 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:21 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:22 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:26:22 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:26:23 2026] You crush Test Sixty for 24 points of damage.\n[Mon Sep 21 11:26:23 2026] You try to punch Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:26:23 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:24 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:24 2026] You strike Test Sixty for 67 points of damage. (Critical)\n[Mon Sep 21 11:26:24 2026] You kick Test Sixty for 420 points of damage. (Critical)\n[Mon Sep 21 11:26:24 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:25 2026] You crush Test Sixty for 18 points of damage.\n[Mon Sep 21 11:26:25 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:25 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:25 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:26 2026] You feel provoked.\n[Mon Sep 21 11:26:26 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:26:26 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:26:26 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:26 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:26 2026] You hit Test Sixty for 42 points of magic damage by Lifebite.\n[Mon Sep 21 11:26:26 2026] Test Sixty staggers.\n[Mon Sep 21 11:26:26 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:28 2026] You strike Test Sixty for 84 points of damage. (Critical)\n[Mon Sep 21 11:26:28 2026] You strike Test Sixty for 190 points of damage.\n[Mon Sep 21 11:26:28 2026] You punch Test Sixty for 74 points of damage.\n[Mon Sep 21 11:26:28 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:28 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:26:29 2026] You punch Test Sixty for 148 points of damage.\n[Mon Sep 21 11:26:29 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:26:30 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:26:30 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:31 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:31 2026] You strike Test Sixty for 100 points of damage.\n[Mon Sep 21 11:26:31 2026] You punch Test Sixty for 147 points of damage.\n[Mon Sep 21 11:26:31 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:32 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:32 2026] You feel provoked.\n[Mon Sep 21 11:26:32 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:26:32 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:26:33 2026] You punch Test Sixty for 73 points of damage. (Critical)\n[Mon Sep 21 11:26:33 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:34 2026] You punch Test Sixty for 139 points of damage.\n[Mon Sep 21 11:26:34 2026] You kick Test Sixty for 295 points of damage.\n[Mon Sep 21 11:26:34 2026] You kick Test Sixty for 295 points of damage.\n[Mon Sep 21 11:26:35 2026] You strike Test Sixty for 70 points of damage.\n[Mon Sep 21 11:26:35 2026] You strike Test Sixty for 125 points of damage.\n[Mon Sep 21 11:26:35 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:35 2026] You punch Test Sixty for 130 points of damage. (Critical)\n[Mon Sep 21 11:26:36 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:36 2026] You crush Test Sixty for 8 points of damage.\n[Mon Sep 21 11:26:36 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:37 2026] You try to crush Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:26:37 2026] You crush Test Sixty for 31 points of damage.\n[Mon Sep 21 11:26:37 2026] You punch Test Sixty for 118 points of damage.\n[Mon Sep 21 11:26:38 2026] You strike Test Sixty for 235 points of damage.\n[Mon Sep 21 11:26:38 2026] You feel provoked.\n[Mon Sep 21 11:26:38 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:26:38 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:26:38 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:26:38 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:39 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:39 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:26:39 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:26:39 2026] You try to kick Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:26:40 2026] You punch Test Sixty for 33 points of damage.\n[Mon Sep 21 11:26:40 2026] You punch Test Sixty for 116 points of damage.\n[Mon Sep 21 11:26:40 2026] You try to crush Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:26:40 2026] You crush Test Sixty for 13 points of damage.\n[Mon Sep 21 11:26:41 2026] You punch Test Sixty for 35 points of damage.\n[Mon Sep 21 11:26:41 2026] You crush Test Sixty for 12 points of damage.\n[Mon Sep 21 11:26:42 2026] You try to strike Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:26:42 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:26:42 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:26:42 2026] You hit Test Sixty for 42 points of magic damage by Lifebite.\n[Mon Sep 21 11:26:42 2026] Test Sixty staggers.\n[Mon Sep 21 11:26:42 2026] You punch Test Sixty for 189 points of damage. (Critical)\n[Mon Sep 21 11:26:43 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:43 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:43 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:44 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:26:44 2026] You kick Test Sixty for 130 points of damage.\n[Mon Sep 21 11:26:44 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:26:44 2026] You crush Test Sixty for 69 points of damage. (Critical)\n[Mon Sep 21 11:26:44 2026] You punch Test Sixty for 73 points of damage.\n[Mon Sep 21 11:26:44 2026] You feel provoked.\n[Mon Sep 21 11:26:44 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:26:44 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:26:45 2026] You strike Test Sixty for 60 points of damage.\n[Mon Sep 21 11:26:45 2026] You strike Test Sixty for 195 points of damage.\n[Mon Sep 21 11:26:45 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:45 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:46 2026] You try to punch Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:26:47 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:47 2026] You crush Test Sixty for 39 points of damage.\n[Mon Sep 21 11:26:47 2026] You punch Test Sixty for 102 points of damage. (Critical)\n[Mon Sep 21 11:26:47 2026] You punch Test Sixty for 139 points of damage.\n[Mon Sep 21 11:26:48 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:48 2026] You try to punch Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:26:48 2026] You crush Test Sixty for 14 points of damage.\n[Mon Sep 21 11:26:49 2026] You kick Test Sixty for 280 points of damage.\n[Mon Sep 21 11:26:49 2026] You kick Test Sixty for 320 points of damage.\n[Mon Sep 21 11:26:49 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:26:49 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:26:49 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:49 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:26:50 2026] You crush Test Sixty for 33 points of damage.\n[Mon Sep 21 11:26:50 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:50 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:50 2026] You feel provoked.\n[Mon Sep 21 11:26:50 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:26:50 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:26:51 2026] You crush Test Sixty for 20 points of damage.\n[Mon Sep 21 11:26:51 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:52 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:52 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:52 2026] You strike Test Sixty for 220 points of damage.\n[Mon Sep 21 11:26:52 2026] You strike Test Sixty for 240 points of damage.\n[Mon Sep 21 11:26:53 2026] You punch Test Sixty for 21 points of damage.\n[Mon Sep 21 11:26:54 2026] You crush Test Sixty for 3 points of damage.\n[Mon Sep 21 11:26:54 2026] You kick Test Sixty for 625 points of damage.\n[Mon Sep 21 11:26:54 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:55 2026] You crush Test Sixty for 56 points of damage. (Critical)\n[Mon Sep 21 11:26:55 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:55 2026] You punch Test Sixty for 37 points of damage.\n[Mon Sep 21 11:26:55 2026] You punch Test Sixty for 130 points of damage. (Critical)\n[Mon Sep 21 11:26:56 2026] You strike Test Sixty for 75 points of damage.\n[Mon Sep 21 11:26:56 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:26:56 2026] You strike Test Sixty for 45 points of damage.\n[Mon Sep 21 11:26:56 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:56 2026] You punch Test Sixty for 118 points of damage.\n[Mon Sep 21 11:26:56 2026] You try to punch Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:26:56 2026] You feel provoked.\n[Mon Sep 21 11:26:56 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:26:56 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:26:58 2026] You punch Test Sixty for 46 points of damage.\n[Mon Sep 21 11:26:58 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:58 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:26:58 2026] You crush Test Sixty for 8 points of damage.\n[Mon Sep 21 11:26:58 2026] You kick Test Sixty for 30 points of damage.\n[Mon Sep 21 11:26:58 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:26:59 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:59 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:26:59 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:26:59 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:26:59 2026] You strike Test Sixty for 72 points of damage. (Critical)\n[Mon Sep 21 11:27:00 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:00 2026] You punch Test Sixty for 43 points of damage.\n[Mon Sep 21 11:27:00 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:01 2026] You punch Test Sixty for 14 points of damage.\n[Mon Sep 21 11:27:01 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:02 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:02 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:02 2026] You feel provoked.\n[Mon Sep 21 11:27:02 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:27:02 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:27:03 2026] You strike Test Sixty for 140 points of damage.\n[Mon Sep 21 11:27:03 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:27:03 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:27:03 2026] You crush Test Sixty for 22 points of damage.\n[Mon Sep 21 11:27:03 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:03 2026] You kick Test Sixty for 405 points of damage.\n[Mon Sep 21 11:27:03 2026] You kick Test Sixty for 50 points of damage.\n[Mon Sep 21 11:27:03 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:04 2026] Test Sixty tries to punch YOU, but misses! (Riposte)\n[Mon Sep 21 11:27:04 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:05 2026] You punch Test Sixty for 73 points of damage.\n[Mon Sep 21 11:27:06 2026] You try to crush Test Sixty, but Test Sixty parries!\n[Mon Sep 21 11:27:06 2026] You try to crush Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:27:06 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:27:06 2026] You strike Test Sixty for 120 points of damage.\n[Mon Sep 21 11:27:07 2026] You punch Test Sixty for 111 points of damage. (Critical)\n[Mon Sep 21 11:27:07 2026] You crush Test Sixty for 18 points of damage.\n[Mon Sep 21 11:27:07 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:08 2026] You kick Test Sixty for 75 points of damage.\n[Mon Sep 21 11:27:08 2026] You punch Test Sixty for 116 points of damage.\n[Mon Sep 21 11:27:08 2026] You punch Test Sixty for 72 points of damage.\n[Mon Sep 21 11:27:08 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:08 2026] You feel provoked.\n[Mon Sep 21 11:27:08 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:27:08 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:27:09 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:10 2026] You try to strike Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:27:10 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:11 2026] You punch Test Sixty for 132 points of damage.\n[Mon Sep 21 11:27:11 2026] You punch Test Sixty for 87 points of damage. (Critical)\n[Mon Sep 21 11:27:11 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:11 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:12 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:13 2026] You punch Test Sixty for 16 points of damage.\n[Mon Sep 21 11:27:13 2026] You punch Test Sixty for 17 points of damage.\n[Mon Sep 21 11:27:13 2026] You try to kick Test Sixty, but Test Sixty dodges!\n[Mon Sep 21 11:27:13 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:27:13 2026] Test Sixty punches YOU for 131 points of damage. (Riposte)\n[Mon Sep 21 11:27:14 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:14 2026] You punch Test Sixty for 31 points of damage.\n[Mon Sep 21 11:27:15 2026] You feel provoked.\n[Mon Sep 21 11:27:15 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:27:15 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:27:15 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:15 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:15 2026] You punch Test Sixty for 70 points of damage.\n[Mon Sep 21 11:27:15 2026] You punch Test Sixty for 111 points of damage.\n[Mon Sep 21 11:27:16 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:16 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:17 2026] You strike Test Sixty for 75 points of damage.\n[Mon Sep 21 11:27:17 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:27:18 2026] You punch Test Sixty for 128 points of damage.\n[Mon Sep 21 11:27:18 2026] You punch Test Sixty for 39 points of damage.\n[Mon Sep 21 11:27:18 2026] You punch Test Sixty for 153 points of damage.\n[Mon Sep 21 11:27:18 2026] You kick Test Sixty for 295 points of damage.\n[Mon Sep 21 11:27:18 2026] You kick Test Sixty for 15 points of damage.\n[Mon Sep 21 11:27:18 2026] You crush Test Sixty for 32 points of damage. (Critical)\n[Mon Sep 21 11:27:18 2026] You crush Test Sixty for 6 points of damage.\n[Mon Sep 21 11:27:19 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:19 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:19 2026] You punch Test Sixty for 51 points of damage.\n[Mon Sep 21 11:27:19 2026] You crush Test Sixty for 1 point of damage.\n[Mon Sep 21 11:27:20 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:20 2026] You punch Test Sixty for 76 points of damage.\n[Mon Sep 21 11:27:20 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:27:21 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:21 2026] You feel provoked.\n[Mon Sep 21 11:27:21 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:27:21 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:27:21 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:22 2026] You try to crush Test Sixty, but miss!\n[Mon Sep 21 11:27:22 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:23 2026] You try to kick Test Sixty, but miss!\n[Mon Sep 21 11:27:23 2026] Test Sixty tries to punch YOU, but YOU dodge!\n[Mon Sep 21 11:27:23 2026] You crush Test Sixty for 22 points of damage.\n[Mon Sep 21 11:27:23 2026] You try to strike Test Sixty, but miss!\n[Mon Sep 21 11:27:24 2026] You try to punch Test Sixty, but miss!\n[Mon Sep 21 11:27:25 2026] You crush Test Sixty for 25 points of damage.\n[Mon Sep 21 11:27:25 2026] You crush Test Sixty for 20 points of damage.\n[Mon Sep 21 11:27:25 2026] You punch Test Sixty for 49 points of damage.\n[Mon Sep 21 11:27:25 2026] You punch Test Sixty for 113 points of damage.\n[Mon Sep 21 11:27:26 2026] You crush Test Sixty for 28 points of damage.\n[Mon Sep 21 11:27:26 2026] You punch Test Sixty for 78 points of damage.\n[Mon Sep 21 11:27:27 2026] You feel provoked.\n[Mon Sep 21 11:27:27 2026] You feel an aura of elemental protection surrounding you.\n[Mon Sep 21 11:27:27 2026] You feel an aura of mystic protection surrounding you.\n[Mon Sep 21 11:27:27 2026] You try to strike Test Sixty, but Test Sixty parries!\n";
+
+// Ability/spell name -> class, built from EverQuest Legends Wiki spell tables (12 caster
+// classes) plus hand-curated signature disciplines/procs for melee-only classes (Monk,
+// Rogue, Ranger, Warrior, Berserker) that have no spellbook. Only unambiguous, single-class
+// names are included — shared utility spells (Cure Disease, Endure Fire, etc.) are left out
+// since they provide no identification signal. See the project notes for sourcing.
+const ABILITY_CLASS_MAP = {"Agilmente's Aria of Eagles": "Bard", "Alenia's Disenchanting Melody": "Bard", "Amplification": "Bard", "Angstlich's Appalling Screech": "Bard", "Anthem de Arms": "Bard", "Aria of Asceticism": "Bard", "Brusco's Boastful Bellow": "Bard", "Cantata of Soothing": "Bard", "Cassindra's Chant of Clarity": "Bard", "Cassindra's Chorus of Clarity": "Bard", "Cassindra's Elegy": "Bard", "Chant of Battle": "Bard", "Chords of Dissonance": "Bard", "Cinda's Charismatic Carillon": "Bard", "Crission's Pixie Strike": "Bard", "Denon's Desperate Dirge": "Bard", "Denon's Disruptive Discord": "Bard", "Denon's Dissension": "Bard", "Elemental Rhythms": "Bard", "Fufil's Curtailing Chant": "Bard", "Guardian Rhythms": "Bard", "Hymn of Restoration": "Bard", "Jaxan's Jig o' Vigor": "Bard", "Jonthan's Provocation": "Bard", "Jonthan's Whistling Warsong": "Bard", "Katta's Song of Sword Dancing": "Bard", "Kelin's Lucid Lullaby": "Bard", "Kelin's Lugubrious Lament": "Bard", "Largo's Melodic Binding": "Bard", "Lyssa's Solidarity of Vision": "Bard", "Lyssa's Veracious Concord": "Bard", "Magical Monologue": "Bard", "McVaxius' Berserker Crescendo": "Bard", "Melanie's Mellifluous Motion": "Bard", "Melody of Ervaj": "Bard", "Niv's Melody of Preservation": "Bard", "Psalm of Cooling": "Bard", "Psalm of Mystic Shielding": "Bard", "Psalm of Purity": "Bard", "Psalm of Vitality": "Bard", "Psalm of Warmth": "Bard", "Purifying Rhythms": "Bard", "Rizlona's Embers": "Bard", "Selo's Accelerando": "Bard", "Selo's Accelerating Chorus": "Bard", "Selo's Chords of Cessation": "Bard", "Selo's Consonant Chain": "Bard", "Shauri's Sonorous Clouding": "Bard", "Shield of Songs": "Bard", "Sionachie's Dreams": "Bard", "Solon's Bewitching Bravura": "Bard", "Solon's Song of the Sirens": "Bard", "Song of Sustenance": "Bard", "Syvelian's Anti-Magic Aria": "Bard", "Tarew's Aquatic Ayre": "Bard", "Tuyen's Chant of Disease": "Bard", "Tuyen's Chant of Flame": "Bard", "Tuyen's Chant of Frost": "Bard", "Tuyen's Chant of Poison": "Bard", "Verses of Victory": "Bard", "Vilia's Verses of Celerity": "Bard", "Blast of Frost": "Beastlord", "Frost Dagger": "Beastlord", "Frost Shard": "Beastlord", "Herikol's Soothing": "Beastlord", "Ice Spear": "Beastlord", "Keshuval's Rejuvenation": "Beastlord", "Malaria": "Beastlord", "Sha's Lethargy": "Beastlord", "Sharik's Replenishing": "Beastlord", "Spirit of Herikol": "Beastlord", "Spirit of Inferno": "Beastlord", "Spirit of Kashek": "Beastlord", "Spirit of Keshuval": "Beastlord", "Spirit of Khaliz": "Beastlord", "Spirit of Lightning": "Beastlord", "Spirit of Sharik": "Beastlord", "Spirit of Vermin": "Beastlord", "Spirit of Yekan": "Beastlord", "Spirit of the Blizzard": "Beastlord", "Spirit of the Scorpion": "Beastlord", "Spiritual Brawn": "Beastlord", "Spiritual Light": "Beastlord", "Tame Spirit": "Beastlord", "Vigor of Zehkes": "Beastlord", "Wild Spirit": "Beastlord", "Yekan's Quickening": "Beastlord", "Yekan's Recovery": "Beastlord", "Abolish Poison": "Cleric", "Abundant Drink": "Cleric", "Abundant Food": "Cleric", "Armor of Protection": "Cleric", "Armor of the Faithful": "Cleric", "Atone": "Cleric", "Blessing of Faith": "Cleric", "Blessing of Piety": "Cleric", "Blessing of the Knight": "Cleric", "Blessing of the Lord Commander": "Cleric", "Blessing of the Page": "Cleric", "Blessing of the Squire": "Cleric", "Bravery": "Cleric", "Celestial Echo": "Cleric", "Celestial Healing": "Cleric", "Celestial Health": "Cleric", "Celestial Remedy": "Cleric", "Divine Barrier": "Cleric", "Echo of Health": "Cleric", "Echoing Light": "Cleric", "Force": "Cleric", "Frenzied Strength": "Cleric", "Guard of Vie": "Cleric", "Hammer of Requital": "Cleric", "Healing Light": "Cleric", "Imbue Black Pearl": "Cleric", "Imbue Black Sapphire": "Cleric", "Imbue Opal": "Cleric", "Imbue Peridot": "Cleric", "Imbue Rose Quartz": "Cleric", "Imbue Ruby": "Cleric", "Imbue Topaz": "Cleric", "Inspire Fear": "Cleric", "Mass Imbue Black Pearl": "Cleric", "Mass Imbue Black Sapphire": "Cleric", "Mass Imbue Opal": "Cleric", "Mass Imbue Peridot": "Cleric", "Mass Imbue Rose Quartz": "Cleric", "Mass Imbue Ruby": "Cleric", "Mass Imbue Topaz": "Cleric", "Promised Renewal": "Cleric", "Renewing Echo": "Cleric", "Resolution": "Cleric", "Restoration": "Cleric", "Resurrection": "Cleric", "Resuscitate": "Cleric", "Sacred Echo": "Cleric", "Sacred Word": "Cleric", "Sanctuary": "Cleric", "Sermon of the Righteous": "Cleric", "Shield of Words": "Cleric", "Sound of Force": "Cleric", "Symbol of Naltron": "Cleric", "Turning of the Unnatural": "Cleric", "Ward of Vie": "Cleric", "Ward of the Divine": "Cleric", "Wave of Fear": "Cleric", "Word Divine": "Cleric", "Word of Healing": "Cleric", "Word of Health": "Cleric", "Word of Pain": "Cleric", "Yaulp III": "Cleric", "Allure of the Wild": "Druid", "Avalanche": "Druid", "Beguile Animals": "Druid", "Beguile Plants": "Druid", "Blooming Heal": "Druid", "Blossoming Heal": "Druid", "Budding Heal": "Druid", "Cascade of Hail": "Druid", "Circle of Butcherblock": "Druid", "Circle of Feerrott": "Druid", "Circle of Lavastorm": "Druid", "Circle of Misty Thicket": "Druid", "Circle of North Karana": "Druid", "Circle of South Ro": "Druid", "Circle of Steamfont": "Druid", "Circle of Stonebrunt": "Druid", "Circle of Surefall Glade": "Druid", "Circle of Toxxulia": "Druid", "Circle of West Commons": "Druid", "Combust": "Druid", "Creeping Crud": "Druid", "Dizzying Wind": "Druid", "Drifting Death": "Druid", "Drones of Doom": "Druid", "Dustdevil": "Druid", "Efflorescing Heal": "Druid", "Engulfing Roots": "Druid", "Ensnare": "Druid", "Enveloping Roots": "Druid", "Everlasting Breath": "Druid", "Feral Spirit": "Druid", "Fire": "Druid", "Firestrike": "Druid", "Fixation of Ro": "Druid", "Flowering Heal": "Druid", "Forest's Renewal": "Druid", "Form of the Great Wolf": "Druid", "Fury of Air": "Druid", "Greater Wolf Form": "Druid", "Healing Water": "Druid", "Ice": "Druid", "Improved Superior Camouflage": "Druid", "Legacy of Spike": "Druid", "Lesser Succor": "Druid", "Lightning Blast": "Druid", "Lightning Strike": "Druid", "Nature's Renewal": "Druid", "Pack Chloroplast": "Druid", "Pack Regeneration": "Druid", "Pack Spirit": "Druid", "Pogonip": "Druid", "Protection of Diamond": "Druid", "Protection of Nature": "Druid", "Protection of Rock": "Druid", "Protection of Steel": "Druid", "Protection of Wood": "Druid", "Ring of Butcherblock": "Druid", "Ring of Feerrott": "Druid", "Ring of Lavastorm": "Druid", "Ring of Misty Thicket": "Druid", "Ring of North Karana": "Druid", "Ring of South Ro": "Druid", "Ring of Steamfont": "Druid", "Ring of Stonebrunt": "Druid", "Ring of Surefall Glade": "Druid", "Ring of Toxxulia": "Druid", "Ring of West Commons": "Druid", "Ro's Fiery Sundering": "Druid", "Savage Spirit": "Druid", "Share Form of the Great Wolf": "Druid", "Share Wolf Form": "Druid", "Shield of Barbs": "Druid", "Shield of Spikes": "Druid", "Shield of Thorns": "Druid", "Skin like Diamond": "Druid", "Skin like Nature": "Druid", "Sprouting Heal": "Druid", "Starfire": "Druid", "Starshine": "Druid", "Storm Strength": "Druid", "Strength of Stone": "Druid", "Succor: Butcherblock": "Druid", "Succor: East Karana": "Druid", "Succor: Lavastorm": "Druid", "Succor: North Karana": "Druid", "Succor: South Ro": "Druid", "Sunbeam": "Druid", "Terrorize Animal": "Druid", "Thorncoat": "Druid", "Treeform": "Druid", "Upheaval": "Druid", "Vengeance of the Wild": "Druid", "Whirling Wind": "Druid", "Zephyr: Butcherblock": "Druid", "Zephyr: Feerrott": "Druid", "Zephyr: Lavastorm": "Druid", "Zephyr: Misty Thicket": "Druid", "Zephyr: North Karana": "Druid", "Zephyr: South Ro": "Druid", "Zephyr: Steamfont": "Druid", "Zephyr: Stonebrunt": "Druid", "Zephyr: Surefall Glade": "Druid", "Zephyr: Toxxulia": "Druid", "Zephyr: West Commons": "Druid", "Aanya's Animation": "Enchanter", "Adorning Grace": "Enchanter", "Alliance": "Enchanter", "Allure": "Enchanter", "Anarchy": "Enchanter", "Augmentation": "Enchanter", "Beguile": "Enchanter", "Benevolence": "Enchanter", "Berserker Spirit": "Enchanter", "Blanket of Forgetfulness": "Enchanter", "Boltran's Animation": "Enchanter", "Boon of the Clear Mind": "Enchanter", "Boon of the Garou": "Enchanter", "Breeze": "Enchanter", "Brilliance": "Enchanter", "Cajoling Whispers": "Enchanter", "Calming Visage": "Enchanter", "Cast Sight": "Enchanter", "Celerity": "Enchanter", "Chaos Flux": "Enchanter", "Chaotic Feedback": "Enchanter", "Charm": "Enchanter", "Chase the Moon": "Enchanter", "Choke": "Enchanter", "Clarify Mana": "Enchanter", "Clarity": "Enchanter", "Cloud": "Enchanter", "Collaboration": "Enchanter", "Color Flux": "Enchanter", "Color Shift": "Enchanter", "Color Skew": "Enchanter", "Crystallize Mana": "Enchanter", "Curse of the Simple Mind": "Enchanter", "Dazzle": "Enchanter", "Discordant Mind": "Enchanter", "Distill Mana": "Enchanter", "Dyn's Dizzying Draught": "Enchanter", "Ebbing Strength": "Enchanter", "Enchant Clay": "Enchanter", "Enchant Electrum": "Enchanter", "Enchant Gold": "Enchanter", "Enchant Platinum": "Enchanter", "Enchant Silver": "Enchanter", "Enfeeblement": "Enchanter", "Enthrall": "Enchanter", "Entrance": "Enchanter", "Entrancing Lights": "Enchanter", "Eye of Confusion": "Enchanter", "Feckless Might": "Enchanter", "Feedback": "Enchanter", "Gasping Embrace": "Enchanter", "Gift of Magic": "Enchanter", "Group Resist Magic": "Enchanter", "Guard of Alendar": "Enchanter", "Haunting Visage": "Enchanter", "Haze": "Enchanter", "Illusion: Air Elemental": "Enchanter", "Illusion: Barbarian": "Enchanter", "Illusion: Dark Elf": "Enchanter", "Illusion: Dry Bone": "Enchanter", "Illusion: Dwarf": "Enchanter", "Illusion: Earth Elemental": "Enchanter", "Illusion: Erudite": "Enchanter", "Illusion: Fire Elemental": "Enchanter", "Illusion: Gnome": "Enchanter", "Illusion: Half-Elf": "Enchanter", "Illusion: Halfling": "Enchanter", "Illusion: High Elf": "Enchanter", "Illusion: Human": "Enchanter", "Illusion: Iksar": "Enchanter", "Illusion: Imp": "Enchanter", "Illusion: Ogre": "Enchanter", "Illusion: Scaled Wolf": "Enchanter", "Illusion: Skeleton": "Enchanter", "Illusion: Spirit Wolf": "Enchanter", "Illusion: Tree": "Enchanter", "Illusion: Troll": "Enchanter", "Illusion: Water Elemental": "Enchanter", "Illusion: Werewolf": "Enchanter", "Illusion: Wood Elf": "Enchanter", "Improved Invisibility": "Enchanter", "Insight": "Enchanter", "Insipid Weakness": "Enchanter", "Intellectual Advancement": "Enchanter", "Intellectual Superiority": "Enchanter", "Juli's Animation": "Enchanter", "Kilan's Animation": "Enchanter", "Kintaz's Animation": "Enchanter", "Leviathan Eyes": "Enchanter", "Mana Sieve": "Enchanter", "Mass Clarify Mana": "Enchanter", "Mass Crystallize Mana": "Enchanter", "Mass Distill Mana": "Enchanter", "Mass Enchant Clay": "Enchanter", "Mass Enchant Electrum": "Enchanter", "Mass Enchant Gold": "Enchanter", "Mass Enchant Platinum": "Enchanter", "Mass Enchant Silver": "Enchanter", "Mass Purify Mana": "Enchanter", "Mass Thicken Mana": "Enchanter", "Memory Blur": "Enchanter", "Mesmerization": "Enchanter", "Mesmerize": "Enchanter", "Mind Wipe": "Enchanter", "Minor Illusion": "Enchanter", "Mircyl's Animation": "Enchanter", "Mist": "Enchanter", "Obscure": "Enchanter", "Pendril's Animation": "Enchanter", "Pillage Enchantment": "Enchanter", "Purify Mana": "Enchanter", "Radiant Visage": "Enchanter", "Rampage": "Enchanter", "Reoccurring Amnesia": "Enchanter", "Rune": "Enchanter", "Rune I": "Enchanter", "Rune II": "Enchanter", "Rune III": "Enchanter", "Rune IV": "Enchanter", "Sagar's Animation": "Enchanter", "Sanity Warp": "Enchanter", "Sentinel": "Enchanter", "Shade": "Enchanter", "Shadow": "Enchanter", "Shalee's Animation": "Enchanter", "Shallow Breath": "Enchanter", "Shiftless Deeds": "Enchanter", "Sisna's Animation": "Enchanter", "Strip Enchantment": "Enchanter", "Suffocate": "Enchanter", "Suffocating Sphere": "Enchanter", "Swift Like the Wind": "Enchanter", "Sympathetic Aura": "Enchanter", "Taper Enchantment": "Enchanter", "Tashani": "Enchanter", "Tashania": "Enchanter", "Tashina": "Enchanter", "Tepid Deeds": "Enchanter", "Theft of Thought": "Enchanter", "Thicken Mana": "Enchanter", "Uleen's Animation": "Enchanter", "Wandering Mind": "Enchanter", "Ward of Alendar": "Enchanter", "Weaken": "Enchanter", "Weakness": "Enchanter", "Whirl Till You Hurl": "Enchanter", "Yegoreff's Animation": "Enchanter", "Barrier of Combustion": "Magician", "Blaze": "Magician", "Bolt of Flame": "Magician", "Burn": "Magician", "Burnout": "Magician", "Burnout II": "Magician", "Burnout III": "Magician", "Cinder Bolt": "Magician", "Column of Fire": "Magician", "Conjuration: Air": "Magician", "Conjuration: Earth": "Magician", "Conjuration: Fire": "Magician", "Conjuration: Water": "Magician", "Cornucopia": "Magician", "Dagger of Symbols": "Magician", "Dimensional Hole": "Magician", "Dimensional Pocket": "Magician", "Elemental Maelstrom": "Magician", "Elemental: Air": "Magician", "Elemental: Earth": "Magician", "Elemental: Fire": "Magician", "Elemental: Water": "Magician", "Elementaling: Air": "Magician", "Elementaling: Earth": "Magician", "Elementaling: Fire": "Magician", "Elementaling: Water": "Magician", "Elementalkin: Air": "Magician", "Elementalkin: Earth": "Magician", "Elementalkin: Fire": "Magician", "Elementalkin: Water": "Magician", "Everfount": "Magician", "Expedience": "Magician", "Fire Flux": "Magician", "Flame Arc": "Magician", "Flame Bolt": "Magician", "Flame Flux": "Magician", "Flare": "Magician", "Greater Conjuration: Air": "Magician", "Greater Conjuration: Earth": "Magician", "Greater Conjuration: Fire": "Magician", "Greater Conjuration: Water": "Magician", "Greater Summoning: Air": "Magician", "Greater Summoning: Earth": "Magician", "Greater Summoning: Fire": "Magician", "Greater Summoning: Water": "Magician", "Inferno Shield": "Magician", "Lava Bolt": "Magician", "Lesser Conjuration: Air": "Magician", "Lesser Conjuration: Earth": "Magician", "Lesser Conjuration: Fire": "Magician", "Lesser Conjuration: Water": "Magician", "Lesser Summoning: Air": "Magician", "Lesser Summoning: Earth": "Magician", "Lesser Summoning: Fire": "Magician", "Lesser Summoning: Water": "Magician", "Minor Conjuration: Air": "Magician", "Minor Conjuration: Earth": "Magician", "Minor Conjuration: Fire": "Magician", "Minor Conjuration: Water": "Magician", "Minor Summoning: Air": "Magician", "Minor Summoning: Earth": "Magician", "Minor Summoning: Fire": "Magician", "Minor Summoning: Water": "Magician", "Modulating Rod": "Magician", "Monster Summoning": "Magician", "Monster Summoning I": "Magician", "Monster Summoning II": "Magician", "Phantom Chain": "Magician", "Phantom Leather": "Magician", "Phantom Plate": "Magician", "Primal Remedy": "Magician", "Rain of Blades": "Magician", "Rain of Fire": "Magician", "Rain of Lava": "Magician", "Rain of Spikes": "Magician", "Rain of Swords": "Magician", "Refresh Summoning": "Magician", "Renew Elements": "Magician", "Renew Summoning": "Magician", "Shield of Fire": "Magician", "Shield of Flame": "Magician", "Shield of Lava": "Magician", "Shock of Blades": "Magician", "Shock of Flame": "Magician", "Shock of Spikes": "Magician", "Shock of Swords": "Magician", "Spear of Warding": "Magician", "Staff of Runes": "Magician", "Staff of Symbols": "Magician", "Staff of Tracing": "Magician", "Staff of Warding": "Magician", "Summon Arrows": "Magician", "Summon Bandages": "Magician", "Summon Brass Choker": "Magician", "Summon Coldstone": "Magician", "Summon Dagger": "Magician", "Summon Elemental Blanket": "Magician", "Summon Elemental Defender": "Magician", "Summon Fang": "Magician", "Summon Golden Choker": "Magician", "Summon Heatstone": "Magician", "Summon Jade Bracelet": "Magician", "Summon Leather Mantle": "Magician", "Summon Linen Mantle": "Magician", "Summon Opal Bracelet": "Magician", "Summon Phantom Chain": "Magician", "Summon Phantom Leather": "Magician", "Summon Phantom Plate": "Magician", "Summon Ring of Flight": "Magician", "Summon Shard of the Core": "Magician", "Summon Shiny Bauble": "Magician", "Summon Silver Choker": "Magician", "Summon Stone Bracelet": "Magician", "Summon Tarnished Bauble": "Magician", "Summon Throwing Dagger": "Magician", "Summon Tiny Ring": "Magician", "Summon Twisted Ring": "Magician", "Summon Waterstone": "Magician", "Summon Wisp": "Magician", "Summon Wooden Bracelet": "Magician", "Summon: Orb of Exploration": "Magician", "Summoning: Air": "Magician", "Summoning: Earth": "Magician", "Summoning: Fire": "Magician", "Summoning: Water": "Magician", "Sword of Runes": "Magician", "Allure of Death": "Necromancer", "Asystole": "Necromancer", "Augment Death": "Necromancer", "Auspice": "Necromancer", "Banshee Aura": "Necromancer", "Beguile Undead": "Necromancer", "Boil Blood": "Necromancer", "Bond of Death": "Necromancer", "Cackling Bones": "Necromancer", "Cajole Undead": "Necromancer", "Call of Bones": "Necromancer", "Cascading Darkness": "Necromancer", "Cavorting Bones": "Necromancer", "Cessation of Life": "Necromancer", "Chilling Embrace": "Necromancer", "Coldlight": "Necromancer", "Corporeal Empathy": "Necromancer", "Covetous Subversion": "Necromancer", "Dark Pact": "Necromancer", "Dark Soul": "Necromancer", "Dead Man Floating": "Necromancer", "Dead Men Floating": "Necromancer", "Dominate Undead": "Necromancer", "Drain Soul": "Necromancer", "Eternities Torment": "Necromancer", "Focus Death": "Necromancer", "Haunting Corpse": "Necromancer", "Hungry Earth": "Necromancer", "Ignite Blood": "Necromancer", "Ignite Bones": "Necromancer", "Impart Strength": "Necromancer", "Incinerate Bones": "Necromancer", "Insidious Retrogression": "Necromancer", "Intensify Death": "Necromancer", "Invoke Death": "Necromancer", "Invoke Shadow": "Necromancer", "Leech": "Necromancer", "Lich": "Necromancer", "Malignant Dead": "Necromancer", "Mend Bones": "Necromancer", "Pact of Shadow": "Necromancer", "Poison Bolt": "Necromancer", "Rapacious Subvention": "Necromancer", "Renew Bones": "Necromancer", "Rest the Dead": "Necromancer", "Scent of Darkness": "Necromancer", "Scent of Dusk": "Necromancer", "Scent of Shadow": "Necromancer", "Screaming Terror": "Necromancer", "Shackle of Bone": "Necromancer", "Shackle of Spirit": "Necromancer", "Shadow Compact": "Necromancer", "Shock of Poison": "Necromancer", "Sight Graft": "Necromancer", "Surge of Enfeeblement": "Necromancer", "Torbas' Acid Blast": "Necromancer", "Torbas' Poison Blast": "Necromancer", "Vampiric Curse": "Necromancer", "Voice Graft": "Necromancer", "Brell's Steadfast Aegis": "Paladin", "Cease": "Paladin", "Desist": "Paladin", "Divine Might": "Paladin", "Divine Purpose": "Paladin", "Divine Vigor": "Paladin", "Ethereal Cleansing": "Paladin", "Flame of Light": "Paladin", "Instrument of Nife": "Paladin", "Thunder of Karana": "Paladin", "Valor of Marr": "Paladin", "Wave of Life": "Paladin", "Burning Arrow": "Ranger", "Call of Earth": "Ranger", "Call of Flame": "Ranger", "Call of Sky": "Ranger", "Eyes of the Cat": "Ranger", "Flaming Arrow": "Ranger", "Force of Nature": "Ranger", "Hawk Eye": "Ranger", "Jolt": "Ranger", "Nature's Precision": "Ranger", "Riftwind's Protection": "Ranger", "Scorching Arrow": "Ranger", "Searing Arrow": "Ranger", "Swarm of Pain": "Ranger", "Blood of Pain": "Shadow Knight", "Dark Temptation": "Shadow Knight", "Despair": "Shadow Knight", "Life Leech": "Shadow Knight", "Scream of Death": "Shadow Knight", "Scream of Hate": "Shadow Knight", "Scream of Pain": "Shadow Knight", "Scythe of Darkness": "Shadow Knight", "Shroud of Hate": "Shadow Knight", "Shroud of Pain": "Shadow Knight", "Spear of Disease": "Shadow Knight", "Spear of Pain": "Shadow Knight", "Spike of Disease": "Shadow Knight", "Strengthen Death": "Shadow Knight", "Terror of Darkness": "Shadow Knight", "Terror of Shadows": "Shadow Knight", "Voice of Darkness": "Shadow Knight", "Voice of Shadows": "Shadow Knight", "Abolish Disease": "Shaman", "Affliction": "Shaman", "Agility": "Shaman", "Alluring Aura": "Shaman", "Assiduous Vision": "Shaman", "Blast of Poison": "Shaman", "Blizzard Blast": "Shaman", "Burst of Strength": "Shaman", "Cannibalize": "Shaman", "Charisma": "Shaman", "Companion Spirit": "Shaman", "Creeping Vision": "Shaman", "Curse": "Shaman", "Deftness": "Shaman", "Dexterity": "Shaman", "Dexterous Aura": "Shaman", "Form of the Bear": "Shaman", "Frenzied Spirit": "Shaman", "Frost Rift": "Shaman", "Frost Strike": "Shaman", "Furious Strength": "Shaman", "Fury": "Shaman", "Gale of Poison": "Shaman", "Glamour": "Shaman", "Grow": "Shaman", "Guardian": "Shaman", "Guardian Spirit": "Shaman", "Harnessing of Spirit": "Shaman", "Health": "Shaman", "Imbue Ivory": "Shaman", "Imbue Jade": "Shaman", "Impassivity": "Shaman", "Infusion of Spirit": "Shaman", "Insidious Fever": "Shaman", "Insidious Malady": "Shaman", "Kragg's Salve": "Shaman", "Malosi": "Shaman", "Mass Imbue Ivory": "Shaman", "Mass Imbue Jade": "Shaman", "Nimble": "Shaman", "Nonchalance": "Shaman", "Odium": "Shaman", "Plague": "Shaman", "Poison Storm": "Shaman", "Rage": "Shaman", "Rising Dexterity": "Shaman", "Shifting Shield": "Shaman", "Shock of Venom": "Shaman", "Shock of the Tainted": "Shaman", "Slugs Healing": "Shaman", "Snails Healing": "Shaman", "Spirit Pouch": "Shaman", "Spirit Quickening": "Shaman", "Spirit of Bih`Li": "Shaman", "Spirit of Cat": "Shaman", "Spirit of Snake": "Shaman", "Spirit of the Puma": "Shaman", "Stamina": "Shaman", "Stoicism": "Shaman", "Strength": "Shaman", "Tagar's Insects": "Shaman", "Talisman of Altuna": "Shaman", "Talisman of Jasinth": "Shaman", "Talisman of Tnarg": "Shaman", "Talisman of the Beast": "Shaman", "Togor's Insects": "Shaman", "Tortoises Healing": "Shaman", "Tumultuous Strength": "Shaman", "Vigilant Spirit": "Shaman", "Vision": "Shaman", "Walking Sleep": "Shaman", "Winter's Roar": "Shaman", "Alter Plane: Hate": "Wizard", "Alter Plane: Sky": "Wizard", "Blast of Cold": "Wizard", "Bonds of Force": "Wizard", "Cast Force": "Wizard", "Cazic Temple Gate": "Wizard", "Cazic Temple Portal": "Wizard", "Chill Sight": "Wizard", "Circle of Force": "Wizard", "Column of Frost": "Wizard", "Column of Lightning": "Wizard", "Concussion": "Wizard", "Conflagration": "Wizard", "Elnerick's Entombment of Ice": "Wizard", "Energy Storm": "Wizard", "Enticement of Flame": "Wizard", "Evacuate: Greater Faydark": "Wizard", "Evacuate: Nektulos": "Wizard", "Evacuate: North Karana": "Wizard", "Evacuate: South Ro": "Wizard", "Evacuate: West Karana": "Wizard", "Fade": "Wizard", "Fingers of Fire": "Wizard", "Fire Bolt": "Wizard", "Fire Spiral of Al'Kabor": "Wizard", "Firestorm": "Wizard", "Flame Shock": "Wizard", "Force Snap": "Wizard", "Force Spiral of Al'Kabor": "Wizard", "Force Strike": "Wizard", "Frost Bolt": "Wizard", "Frost Shock": "Wizard", "Frost Spiral of Al'Kabor": "Wizard", "Frost Storm": "Wizard", "Garrison's Mighty Mana Shock": "Wizard", "Gaze": "Wizard", "Greater Faydark Gate": "Wizard", "Greater Faydark Portal": "Wizard", "Greater Mass Imbue Fire Opal": "Wizard", "Harvest": "Wizard", "Heat Sight": "Wizard", "Ice Comet": "Wizard", "Ice Shock": "Wizard", "Icestrike": "Wizard", "Imbue Fire Opal": "Wizard", "Inferno Shock": "Wizard", "Invisibility to Undead": "Wizard", "Lava Storm": "Wizard", "Lesser Evacuate": "Wizard", "Lesser Familiar": "Wizard", "Lightning Bolt": "Wizard", "Lightning Shock": "Wizard", "Lightning Storm": "Wizard", "Magnify": "Wizard", "Mana Detonation": "Wizard", "Mana Ignition": "Wizard", "Markar's Clash": "Wizard", "Mass Imbue Fire Opal": "Wizard", "Minor Familiar": "Wizard", "Nektulos Gate": "Wizard", "Nektulos Portal": "Wizard", "North Karana Gate": "Wizard", "North Karana Portal": "Wizard", "North Ro Gate": "Wizard", "North Ro Portal": "Wizard", "Numbing Cold": "Wizard", "O`Keil's Embers": "Wizard", "O`Keil's Flickering Flame": "Wizard", "O`Keil's Levity": "Wizard", "O`Keil's Radiation": "Wizard", "Pillar of Fire": "Wizard", "Project Lightning": "Wizard", "Rend": "Wizard", "Resistant Skin": "Wizard", "Shock Spiral of Al'Kabor": "Wizard", "Shock of Fire": "Wizard", "Shock of Ice": "Wizard", "Shock of Lightning": "Wizard", "Sight": "Wizard", "Sphere of Light": "Wizard", "Stonebrunt Gate": "Wizard", "Stonebrunt Portal": "Wizard", "Supernova": "Wizard", "Thunder Strike": "Wizard", "Thunderclap": "Wizard", "Tishan's Clash": "Wizard", "Toxxulia Gate": "Wizard", "Toxxulia Portal": "Wizard", "Translocate": "Wizard", "Translocate: Cazic Temple": "Wizard", "Translocate: Greater Faydark": "Wizard", "Translocate: Nektulos": "Wizard", "Translocate: North Karana": "Wizard", "Translocate: North Ro": "Wizard", "Translocate: Stonebrunt": "Wizard", "Translocate: Toxxulia": "Wizard", "Translocate: West Commons": "Wizard", "Translocate: West Karana": "Wizard", "Vision Shift": "Wizard", "Ward of Calrena": "Wizard", "West Commons Gate": "Wizard", "West Commons Portal": "Wizard", "West Karana Gate": "Wizard", "West Karana Portal": "Wizard", "Wrath of Al'Kabor": "Wizard", "Yonder": "Wizard", "Flying Kick": "Monk", "Eagle Strike": "Monk", "Tiger Claw": "Monk", "Dragon Punch": "Monk", "Round Kick": "Monk", "Tail Rake": "Monk", "Resistant Discipline": "Monk", "Fearless Discipline": "Monk", "Stonestance Discipline": "Monk", "Thunderkick Discipline": "Monk", "Whirlwind Discipline": "Monk", "Voiddance Discipline": "Monk", "Innerflame Discipline": "Monk", "Hundred Fists Discipline": "Monk", "Silentfist Discipline": "Monk", "Ashenhand Discipline": "Monk", "Mend": "Monk", "Dragon Force": "Monk", "Improved Mend": "Monk", "Purify Body": "Monk", "Rapid Feign": "Monk", "Backstab": "Rogue", "Evade": "Rogue", "Chaotic Stab": "Rogue", "Escape": "Rogue", "Innate Sneakiness": "Rogue", "Purge Poison": "Rogue", "Shroud of Stealth": "Rogue", "Blood Siphon Venom": "Rogue", "Asp Venom": "Rogue", "Stunning Venom": "Rogue", "Blood Draw Venom": "Rogue", "Cobra Venom": "Rogue", "Weakening Poison": "Rogue", "Hobbling Poison": "Rogue", "Concussive Poison": "Rogue", "Befuddling Poison": "Rogue", "Grounding Poison": "Rogue", "Clumsiness Poison": "Rogue", "Banishing Poison": "Rogue", "Fettering Poison": "Rogue", "Binding Poison": "Rogue", "Neurotoxic Poison": "Rogue", "Mind Break Poison": "Rogue", "Thought Drain Poison": "Rogue", "Antimagic Poison": "Rogue", "Mage Bane Poison": "Rogue", "Paralytic Poison": "Rogue", "Blood Siphon Strike": "Rogue", "Asp Venom Strike": "Rogue", "Weakening Strike": "Rogue", "Hobbling Strike": "Rogue", "Concussive Strike": "Rogue", "Befuddling Strike": "Rogue", "Grounding Strike": "Rogue", "Stunning Strike": "Rogue", "Clumsiness Strike": "Rogue", "Banishing Strike": "Rogue", "Blood Draw Strike": "Rogue", "Cobra Venom Strike": "Rogue", "Called Shot": "Ranger", "Weapon Mastery of the Scout": "Ranger", "Point Blank Fire": "Ranger", "Disrupting Shot": "Ranger", "Double Bow Shot": "Ranger", "Critical Double Bow Shot": "Ranger", "Strikethrough Double Bow Shot": "Ranger", "War Cry": "Warrior", "Heroic Leap": "Warrior", "Area Taunt": "Warrior", "Innate Fighters Tenacity": "Warrior", "Warrior's Endurance": "Warrior", "Obsidian Shatter": "Warrior", "Fangol\u2019s Breath": "Warrior", "Soul Leech": "Warrior", "Tendon Slice": "Berserker", "Skull Bash": "Berserker", "Blood Rune": "Berserker", "Innate Power Strike": "Berserker", "Tireless Spirit": "Berserker"};
+const CLASS_CODES = {
+  BRD:'Bard', BST:'Beastlord', BER:'Berserker', ZRK:'Berserker', CLR:'Cleric', DRU:'Druid',
+  ENC:'Enchanter', MAG:'Magician', MNK:'Monk', NEC:'Necromancer', PAL:'Paladin', RNG:'Ranger',
+  ROG:'Rogue', SHD:'Shadow Knight', SHM:'Shaman', WAR:'Warrior', WIZ:'Wizard',
+};
+
+/* ============================== PARSING ============================== */
+
+const MONTHS = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+function parseEQTime(s){
+  const m = /^\w{3} (\w{3}) (\d{1,2}) (\d{2}):(\d{2}):(\d{2}) (\d{4})$/.exec(s);
+  if(!m) return null;
+  const [,mon,day,hh,mm,ss,yyyy] = m;
+  if(!(mon in MONTHS)) return null;
+  return new Date(+yyyy, MONTHS[mon], +day, +hh, +mm, +ss);
+}
+
+const RE = {
+  ts: /^\[(\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4})\] (.*)$/,
+  roster: /^\[(\d+) ([A-Z]{2,4})\/([A-Z]{2,4})\/([A-Z]{2,4})\] (\S+) \(/,
+  player: /^\[\d+\s+[A-Za-z\/]+\]\s+(\S+)\s+\(/,
+  spellOut: /^You (\w+) (.+?) for (\d+) points? of (\w+) damage by (.+?)\.(?: \((.+?)\))?$/,
+  meleeOut: /^You (\w+) (.+?) for (\d+) points? of damage\.(?: \((.+?)\))?$/,
+  // NOTE: incoming damage lines sometimes render the target token as lowercase
+  // "you" instead of "YOU" (an inconsistency in the game client itself, confirmed
+  // against real log data — same verb "hit", same message shape, just different
+  // capitalization), so these accept both rather than requiring uppercase.
+  spellIn: /^(.+?) (\w+) (?:YOU|you) for (\d+) points? of (\w+) damage by (.+?)\.(?: \((.+?)\))?$/,
+  meleeIn: /^(.+?) (\w+) (?:YOU|you) for (\d+) points? of damage\.(?: \((.+?)\))?$/,
+  // Trailing modifiers (e.g. "(Riposte)") can follow a miss outcome just like they
+  // follow a damage line — confirmed real on "miss!" (400 occurrences in one log).
+  missOutDef: /^You try to (\w+) (.+?), but (.+?) (dodges|parries|blocks)!(?: \((.+?)\))?$/,
+  missOutPlain: /^You try to (\w+) (.+?), but miss!(?: \((.+?)\))?$/,
+  // "Magical skin" is a ward effect that fully absorbs an outgoing melee swing
+  // (0 damage, distinct from dodge/parry/block) — confirmed on real data.
+  missOutAbsorb: /^You try to (\w+) (.+?), but (.+?)'s magical skin absorbs the blow!(?: \((.+?)\))?$/,
+  // Most special-attack verbs read "tries to <verb> YOU", but some (e.g. "frenzy")
+  // insert "on" first — "tries to frenzy on YOU, but misses!" (181 occurrences in one
+  // log) — so the infix is optional. "riposte" is also a real defended outcome here
+  // (725 occurrences, previously falling through to the generic 'miss' bucket since
+  // it wasn't in the block|dodge|parry enum) alongside block/dodge/parry.
+  missInDef: /^(.+?) tries to (\w+)(?: on)? YOU, but YOU (block|dodge|parry|riposte)!$/,
+  missInPlain: /^(.+?) tries to (\w+)(?: on)? YOU, but misses!(?: \((.+?)\))?$/,
+  // Generalized after the Oct-9 log surfaced real variants this missed: a heal-over-time
+  // tick inserts "over time" before "for" ("healed Codaa over time for N hit points by
+  // X."); some heals (notably ones with no named spell, ~500 occurrences) omit the
+  // "by <ability>" clause entirely; and like damage lines, a trailing "(Critical)" or
+  // similar modifier can follow the final period. All three are now optional.
+  heal: /^(.+?) healed (.+?)(?: over time)? for (\d+)(?: \((\d+)\))? hit points?(?: by (.+?))?\.(?: \((.+?)\))?$/,
+  dotInSelf: /^You have taken (\d+) damage from (.+?) by (.+?)\.(?: \((.+?)\))?$/,
+  dotTick: /^(.+?) has taken (\d+) damage from (.+?) by (.+?)\.(?: \((.+?)\))?$/,
+  // First-person DoT-tick phrasing used when the log owner is the caster: no
+  // "by <Attacker>" clause since "your" already implies it. Confirmed real and
+  // common (e.g. bard DoT songs tick this way far more often than third-person).
+  dotTickYours: /^(.+?) has taken (\d+) damage from your (.+?)\.(?: \((.+?)\))?$/,
+  // Reflect/aura procs: "<Target> is <participle> by YOUR <effect> for N points of X damage."
+  // Seen so far: thorns ("pierced"), frost ("tormented"), flames ("burned") — kept
+  // generic rather than enumerated so a new effect name/participle still matches.
+  // Only the log owner's own "YOUR <effect>" is captured; other characters'
+  // "<Name>'s <effect>" procs are third-party noise and intentionally not parsed.
+  procOut: /^(.+?) is \w+ by YOUR (\w+) for (\d+) points? of ([\w-]+) damage\.$/,
+  // Mirror of procOut for the incoming direction: an enemy's own thorns/flames/frost-
+  // style aura damaging the log owner. Phrased "YOU are <participle> by <Attacker>'s
+  // <effect> for N points of <type> damage!" (note: trailing "!" not "." — distinct
+  // punctuation from procOut's own-proc line). Found to be a large real gap on the
+  // Oct-18 log (8,426 thorns + 3,251 flames occurrences in one log alone) — these are
+  // genuine incoming damage that was going completely uncounted toward damage taken.
+  procIn: /^YOU are \w+ by (.+?)'s (\w+) for (\d+) points? of ([\w-]+) damage!$/,
+  // Fall damage / other unattributed environmental damage — "You were hit by
+  // non-melee for N damage." (usually paired with "YOU were injured by falling."
+  // right after it, confirming the source). Rare (79 occurrences in one log) but
+  // real damage taken with no attacker name to credit, so it's bucketed under a
+  // synthetic "Falling/Environment" source rather than dropped.
+  envIn: /^You were hit by non-melee for (\d+) damage\.$/,
+  auto: /^Auto attack is (on|off)\.$/,
+  // Zone transitions ("You have entered <Zone>.") — first-person only, always the
+  // log owner's own crossing, confirmed present and consistent (480+ in one log).
+  zoneEnter: /^You have entered ([A-Za-z0-9' .-]+)\.$/,
+  // Cast/sing start, used only as a cosmetic hint for *which* spell produced a charm
+  // success a few lines later — never gates correctness, just labels the UI.
+  castBegin: /^You begin (?:casting|singing) ([A-Za-z0-9' .-]+)\.$/,
+  // Charm success messages. Different charm spells use different success text in this
+  // log — confirmed via eqlwiki.com that Solon's Bewitching Bravura (Bard) and Largo's
+  // Melodic Binding both report success as "<mob>'s eyes glaze over.", while Beguile
+  // (Enchanter) reports "<mob> has been charmed." Both are real and kept separate from
+  // any generic "worn off" text since that phrase is also used for ordinary DoT debuffs
+  // expiring on an enemy and would false-positive if used alone.
+  // Character class includes a backtick: some possessive mob names use it instead of a
+  // straight apostrophe (same convention as the Beastlord warder's "<Owner>`s warder"),
+  // e.g. "Innoruuk`s Chosen" — confirmed a real charm target missed entirely by an
+  // earlier version of these three regexes that omitted it, so that charm was never
+  // opened as a tracked window at all.
+  charmGlaze: /^([A-Za-z0-9'` .-]+)'s eyes glaze over\.$/,
+  charmForced: /^([A-Za-z0-9'` .-]+) has been charmed\.$/,
+  charmEnd: /^Your ([A-Za-z0-9'` .-]+) spell has worn off of ([A-Za-z0-9'` .-]+)\.$/,
+  // A pet acknowledging a /pet command (attack, hold, back off, etc.) always addresses
+  // the owner as "Master" somewhere in its reply — confirmed against real log data
+  // across every pet class that appears there (random-pool names like Xabektik, Jabektik,
+  // Zartik, Kenarn..., not just the Beastlord warder): "Now holding, Master. I will not
+  // start new attacks until ordered.", "I beg forgiveness, Master. That is not a legal
+  // target.", "Sorry, Master... calming down.", "Following you, Master." This message is
+  // sent only to the commanding player's own client (not broadcast to nearby players the
+  // way NPC speech is), so seeing it at all means the speaker is *this log's own* pet —
+  // true for any pet class, with no per-class spell list needed. Matched generically on
+  // the literal word "Master" rather than any one exact phrase, so a command-reply we
+  // haven't seen yet still gets picked up. Two distinct message channels both carry this:
+  // "<Name> says, '...'" (the rarer one — "holding"/"forgiveness"/etc., ~hundreds of
+  // occurrences) and "<Name> told you, '...'" (by far the dominant one in real data —
+  // the actual "Attacking <target> Master." attack-command acknowledgment, 11,000+
+  // occurrences in one log — this is the specific line the user remembered and asked
+  // about first).
+  petAck: /^(.+?) says, '(.*)'$/,
+  petAckTold: /^(.+?) told you, '(.*)'$/,
+};
+
+// A Beastlord's persistent pet is literally named "<Owner>`s warder" (or "<Owner>'s
+// warder") in the log text itself — unlike other pet-summoning classes (Necromancer,
+// Magician, Shaman, Shadow Knight), whose pets get a random fantasy name with no
+// textual link to the owner, so they can't be reliably told apart from another
+// player's same-random-named pet in group/raid content. Confirmed present and
+// combat-active in this log (638+ melee hits, 923 pet-acknowledges-attack lines).
+function isWarderName(name, charName){
+  return name === (charName + "`s warder") || name === (charName + "'s warder");
+}
+
+// Third-person combat lines involving a *recognized pet identity only* (the log
+// owner's Beastlord warder, or a mob inside an open charm window). A single generic
+// "<any name> <verb> <any name> for N damage" regex can't reliably tell where a
+// multi-word name ends and the verb begins (e.g. "Codaa`s warder cleaves..." vs
+// "Codaa`s" as name + "warder" as a false-positive verb) — so instead each candidate
+// pet name is anchored literally at the start (pet dealing damage) or end (pet taking
+// damage) of the line, which removes the ambiguity entirely. The candidate set is
+// always small (the one warder name, plus however many charms are currently open), so
+// trying each against every line is cheap. Never matches a name outside that known
+// set, so ordinary third-party raid/zone combat is never swept in.
+function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+// EQ only capitalizes a mob's displayed name when it's the grammatical subject starting
+// the line ("A rock golem hits YOU...") — the same mob's canonical form stays whatever
+// it actually is everywhere else, including as the *target* mid-sentence ("You hit a
+// rock golem for...") and in flavor/status text ("a rock golem is bound by...",
+// "a rock golem's eyes glaze over."). Only the first character is ever affected, so the
+// outgoing (subject-position) anchors match either case there while staying literal for
+// the rest of the name; the incoming (target-position) anchors don't need this since
+// that position is never auto-capitalized. Confirmed as a real gap, not hypothetical:
+// without this, "Heart harpie slashes Gorgalosk for..." (capital H) never matched the
+// charm-window candidate stored as "heart harpie" (lowercase, as charmGlaze captured it).
+function startAnchor(name){
+  if(!name) return '';
+  const first = name[0];
+  const lo = escRe(first.toLowerCase()), hi = escRe(first.toUpperCase());
+  const cls = lo === hi ? lo : '['+lo+hi+']';
+  return cls + escRe(name.slice(1));
+}
+const _petRegexCache = new Map();
+function getPetRegexSet(name){
+  let r = _petRegexCache.get(name);
+  if(!r){
+    const nStart = startAnchor(name);
+    const n = escRe(name);
+    r = {
+      outSpell: new RegExp('^'+nStart+' (\\w+) (.+?) for (\\d+) points? of (\\w+) damage by (.+?)\\.(?: \\((.+?)\\))?$'),
+      outMelee: new RegExp('^'+nStart+' (\\w+)s? (.+?) for (\\d+) points? of damage\\.(?: \\((.+?)\\))?$'),
+      inSpell: new RegExp('^(.+?) (\\w+) '+n+' for (\\d+) points? of (\\w+) damage by (.+?)\\.(?: \\((.+?)\\))?$'),
+      inMelee: new RegExp('^(.+?) (\\w+)s? '+n+' for (\\d+) points? of damage\\.(?: \\((.+?)\\))?$'),
+    };
+    _petRegexCache.set(name, r);
+  }
+  return r;
+}
+function matchPetLine(rest, charName, openCharms, masterPetNames){
+  const candidates = [charName+"\`s warder", charName+"'s warder"];
+  for(const name of openCharms.keys()) candidates.push(name);
+  if(masterPetNames) for(const name of masterPetNames) if(!candidates.includes(name)) candidates.push(name);
+  for(const name of candidates){
+    const rx = getPetRegexSet(name);
+    let m;
+    if((m = rx.outSpell.exec(rest))) return {dir:'out', pet:name, source:name, target:m[2], amount:+m[3], dtype:m[4], ability:m[5], mods:m[6]||''};
+    if((m = rx.outMelee.exec(rest))) return {dir:'out', pet:name, source:name, target:m[2], amount:+m[3], dtype:'physical', ability:m[1], mods:m[4]||''};
+    if((m = rx.inSpell.exec(rest))) return {dir:'in', pet:name, source:m[1], target:name, amount:+m[3], dtype:m[4], ability:m[5], mods:m[6]||''};
+    if((m = rx.inMelee.exec(rest))) return {dir:'in', pet:name, source:m[1], target:name, amount:+m[3], dtype:'physical', ability:m[2], mods:m[4]||''};
+  }
+  return null;
+}
+
+// A combo "key" is its 3 class codes alphabetized, so the same trio always groups
+// together regardless of the order the game happens to print them in (the roster
+// line's slot order isn't consistent — e.g. "RNG/MNK/BRD" and "MNK/BRD/SHM" both
+// put Bard in a different position).
+function comboKey(codes){ return codes.slice().sort().join('/'); }
+function comboLabel(key){ return key.split('/').map(c => CLASS_CODES[c] || c).join(' / '); }
+
+// Which combo (if any) was active at a given time, based on the log owner's own
+// roster ("/who") snapshots. Holds the last-known combo constant until the next
+// snapshot proves otherwise; returns null for anything before the first snapshot,
+// since there's no evidence to go on yet.
+function comboAt(rosterEvents, t){
+  if(!rosterEvents || !rosterEvents.length) return null;
+  let result = null;
+  for(const r of rosterEvents){
+    if(r.t <= t) result = r.key; else break;
+  }
+  return result;
+}
+
+const RANK_SUFFIX = /\s+(I{1,3}|IV|V|VI{0,3}|IX|X)$/;
+// Maps a single combat-log ability/verb name to the class it uniquely belongs to,
+// or null if it's a generic weapon swing / not in the dictionary (shown as "Melee").
+function classifyAbility(ability){
+  if(!ability) return null;
+  // NOTE: 'kick' and 'punch' are generic combat skills available to most melee/hybrid
+  // classes (Warrior, Monk, Ranger, Rogue, Berserker, Paladin, Shadow Knight all have
+  // some form of it), so they carry no class-identifying signal and fall through to
+  // the unclassified "Melee" bucket rather than being attributed to a specific class.
+  if(ABILITY_CLASS_MAP[ability]) return ABILITY_CLASS_MAP[ability];
+  const stripped = ability.replace(RANK_SUFFIX, '');
+  if(stripped !== ability && ABILITY_CLASS_MAP[stripped]) return ABILITY_CLASS_MAP[stripped];
+  return null;
+}
+
+function parseLog(text){
+  const lines = text.split(/\r?\n/);
+  const events = [];
+  const rosterAll = [];
+  const zoneAll = [];
+  let charName = 'You';
+  let nonEmpty = 0;
+  let matched = 0;
+  let minT = null, maxT = null;
+
+  // Charm tracking: openCharms holds mobs currently charmed by the log owner (mob name
+  // -> {spellName, start}), live-updated as the single forward pass proceeds, so any
+  // third-person line encountered later is checked against whatever's open *at that
+  // point in time* — correct causality without a second pass. lastCastSpell/lastCastT
+  // is a rolling cosmetic hint only (which spell most recently began casting/singing),
+  // used to label a charm success with the spell that likely caused it.
+  const openCharms = new Map();
+  const charmWindows = [];
+  let lastCastSpell = null, lastCastT = null;
+
+  // Pre-scan for pet-command acknowledgments ("<Name> says, '...Master...'") before the
+  // main pass, so a pet's identity is known for the *whole* log — including any of its
+  // damage that happened before the first time it was ever commanded — not just forward
+  // from wherever the ack line happens to fall. Cheap: the substring check skips the
+  // regex entirely on the vast majority of lines.
+  // Excludes any name that is ever seen as a charm target (charmGlaze/charmForced)
+  // anywhere in the log, no matter when — because that case is already handled
+  // correctly and time-scoped by openCharms/charmWindows, and applying the ack-derived
+  // identity *globally* on top of it, with no time boundary, would misattribute an
+  // unrelated earlier/later fight as pet damage. Confirmed as a real, not hypothetical,
+  // collision twice in real log data: "A rock golem" fought the player as an ordinary
+  // hostile enemy on Sep 27, then was charmed and commanded on Oct 7 — and "Heart
+  // harpie" fought the player as a hostile enemy (with its own aggressive dialogue) on
+  // Sep 24, then was charmed and commanded on Oct 9. Neither can be caught by a surface
+  // heuristic like "starts with 'A '/'An '" — "Heart harpie" has no leading article at
+  // all — so this cross-references against every actual charm event in the log instead
+  // of guessing from the name's shape. The necro/mage/shadowknight persistent-pet name
+  // pool (Xabektik, Jobtik, Jarann, ...) never shows up as a charm target, confirmed
+  // against the full log, so this costs that case nothing. Comparison folds just the
+  // first letter to lowercase on both sides — EQ only ever capitalizes a mob's
+  // displayed name when it's the grammatical subject starting a line (true of both the
+  // charm-success text and the pet-ack text here), so "A rock golem"/"a rock golem" and
+  // "Heart harpie"/"heart harpie" are the same identity for this comparison's purposes
+  // (see startAnchor() above for the matching fix this same EQ behavior required
+  // elsewhere) — without folding, the exclusion above silently failed to catch either
+  // real collision, since charmGlaze captured the lowercase/canonical form while the
+  // ack line always renders the capitalized subject-position form.
+  function foldFirst(s){ return s ? s[0].toLowerCase()+s.slice(1) : s; }
+  const everCharmedNames = new Set();
+  for(let i=0;i<lines.length;i++){
+    const raw = lines[i];
+    if(!raw) continue;
+    const tm0 = RE.ts.exec(raw);
+    if(!tm0) continue;
+    const mg = RE.charmGlaze.exec(tm0[2]) || RE.charmForced.exec(tm0[2]);
+    if(mg) everCharmedNames.add(foldFirst(mg[1]));
+  }
+  const masterPetNames = new Set();
+  for(let i=0;i<lines.length;i++){
+    const raw = lines[i];
+    if(!raw || (raw.indexOf("says, '") === -1 && raw.indexOf("told you, '") === -1)) continue;
+    const tm0 = RE.ts.exec(raw);
+    if(!tm0) continue;
+    const mm0 = RE.petAck.exec(tm0[2]) || RE.petAckTold.exec(tm0[2]);
+    if(mm0 && /\bMaster\b/.test(mm0[2]) && !everCharmedNames.has(foldFirst(mm0[1]))) masterPetNames.add(mm0[1]);
+  }
+
+  // Resolves a recognized pet identity's name to its display label. Closed over
+  // charName/openCharms so it always reflects "as of the current line" during the pass.
+  function petLabelFor(name){
+    if(isWarderName(name, charName)) return {kind:'warder', label:'Beastlord warder'};
+    if(openCharms.has(name)){
+      const c = openCharms.get(name);
+      return {kind:'charm', label:'Charmed: '+name+(c.spellName?' (via '+c.spellName+')':''), mobName:name, spellName:c.spellName};
+    }
+    if(masterPetNames.has(name)) return {kind:'pet', label:'Your pet ('+name+')'};
+    return null;
+  }
+
+  for(let i=0;i<lines.length;i++){
+    const raw = lines[i];
+    if(!raw || !raw.trim()) continue;
+    nonEmpty++;
+    const tm = RE.ts.exec(raw);
+    if(!tm) continue;
+    const t = parseEQTime(tm[1]);
+    if(!t) continue;
+    const rest = tm[2];
+    let mm;
+    let hit = true;
+
+    if((mm = RE.roster.exec(rest))){
+      if(charName === 'You') charName = mm[5];
+      rosterAll.push({t, level:+mm[1], codes:[mm[2],mm[3],mm[4]], name:mm[5]});
+      hit = false;
+    } else if((mm = RE.player.exec(rest))){
+      if(charName === 'You') charName = mm[1];
+      hit = false;
+    } else if((mm = RE.spellOut.exec(rest))){
+      events.push({t, kind:'dmg', dir:'out', source:'You', target:mm[2], amount:+mm[3], dtype:mm[4], ability:mm[5], mods:mm[6]||''});
+    } else if((mm = RE.meleeOut.exec(rest))){
+      events.push({t, kind:'dmg', dir:'out', source:'You', target:mm[2], amount:+mm[3], dtype:'physical', ability:mm[1], mods:mm[4]||''});
+    } else if((mm = RE.spellIn.exec(rest))){
+      events.push({t, kind:'dmg', dir:'in', source:mm[1], target:'You', amount:+mm[3], dtype:mm[4], ability:mm[5], mods:mm[6]||''});
+    } else if((mm = RE.meleeIn.exec(rest))){
+      events.push({t, kind:'dmg', dir:'in', source:mm[1], target:'You', amount:+mm[3], dtype:'physical', ability:mm[2], mods:mm[4]||''});
+    } else if((mm = RE.missOutDef.exec(rest))){
+      events.push({t, kind:'miss', dir:'out', source:'You', target:mm[2], ability:mm[1], result:mm[4]});
+    } else if((mm = RE.missOutPlain.exec(rest))){
+      events.push({t, kind:'miss', dir:'out', source:'You', target:mm[2], ability:mm[1], result:'miss'});
+    } else if((mm = RE.missOutAbsorb.exec(rest))){
+      events.push({t, kind:'miss', dir:'out', source:'You', target:mm[2], ability:mm[1], result:'absorb'});
+    } else if((mm = RE.missInDef.exec(rest))){
+      events.push({t, kind:'miss', dir:'in', source:mm[1], target:'You', ability:mm[2], result:mm[3]});
+    } else if((mm = RE.missInPlain.exec(rest))){
+      events.push({t, kind:'miss', dir:'in', source:mm[1], target:'You', ability:mm[2], result:(mm[3]||'miss').toLowerCase()});
+    } else if((mm = RE.heal.exec(rest))){
+      let src = mm[1] === 'You' ? 'You' : mm[1];
+      let tgt = mm[2].toLowerCase() === 'you' ? 'You' : mm[2];
+      events.push({t, kind:'heal', source:src, target:tgt, amount:+mm[3], ability:mm[5]||'Unnamed heal'});
+    } else if((mm = RE.dotInSelf.exec(rest))){
+      events.push({t, kind:'dmg', dir:'in', source:mm[3], target:'You', amount:+mm[1], dtype:'dot', ability:mm[2], mods:mm[4]||''});
+    } else if((mm = RE.dotTick.exec(rest))){
+      const src = mm[4] === 'You' ? 'You' : mm[4];
+      const petInfo = src !== 'You' ? petLabelFor(src) : null;
+      events.push({t, kind:'dmg', dir:'out', source:src, target:mm[1], amount:+mm[2], dtype:'dot', ability:mm[3], mods:mm[5]||'', petInfo});
+    } else if((mm = RE.dotTickYours.exec(rest))){
+      events.push({t, kind:'dmg', dir:'out', source:'You', target:mm[1], amount:+mm[2], dtype:'dot', ability:mm[3], mods:mm[4]||''});
+    } else if((mm = RE.procOut.exec(rest))){
+      const procName = mm[2].charAt(0).toUpperCase() + mm[2].slice(1).toLowerCase();
+      events.push({t, kind:'dmg', dir:'out', source:'You', target:mm[1], amount:+mm[3], dtype:mm[4], ability:procName, mods:''});
+    } else if((mm = RE.procIn.exec(rest))){
+      const procName = mm[2].charAt(0).toUpperCase() + mm[2].slice(1).toLowerCase();
+      events.push({t, kind:'dmg', dir:'in', source:mm[1], target:'You', amount:+mm[3], dtype:mm[4], ability:procName, mods:''});
+    } else if((mm = RE.envIn.exec(rest))){
+      events.push({t, kind:'dmg', dir:'in', source:'Falling/Environment', target:'You', amount:+mm[1], dtype:'non-melee', ability:'Falling/Environment', mods:''});
+    } else if((mm = RE.auto.exec(rest))){
+      events.push({t, kind:'toggle', state:mm[1]});
+    } else if((mm = RE.zoneEnter.exec(rest))){
+      zoneAll.push({t, zone:mm[1]});
+      hit = false;
+    } else if((mm = RE.castBegin.exec(rest))){
+      lastCastSpell = mm[1]; lastCastT = t;
+      hit = false;
+    } else if((mm = RE.charmGlaze.exec(rest)) || (mm = RE.charmForced.exec(rest))){
+      const mobName = mm[1];
+      const spellName = (lastCastT && (t - lastCastT) <= 6000) ? lastCastSpell : null;
+      openCharms.set(mobName, {spellName, start:t});
+      hit = false;
+    } else if((mm = RE.charmEnd.exec(rest))){
+      const spellName = mm[1], mobName = mm[2];
+      if(openCharms.has(mobName)){
+        const c = openCharms.get(mobName);
+        if(!c.spellName || c.spellName === spellName){
+          charmWindows.push({mobName, spellName:(c.spellName||spellName), start:c.start, end:t});
+          openCharms.delete(mobName);
+        }
+      }
+      hit = false;
+    } else if(RE.petAck.test(rest) || RE.petAckTold.test(rest)){
+      // Already folded into masterPetNames by the pre-scan above; nothing further to
+      // do here besides keeping it from falling into the generic pet-line matcher below
+      // (it's a speech line, not a combat line).
+      hit = false;
+    } else if((function(){
+        // Only attempted once nothing above matched, and only ever matches a line
+        // involving one of the currently-known pet identities (see matchPetLine).
+        const pm = matchPetLine(rest, charName, openCharms, masterPetNames);
+        if(!pm) return false;
+        const petInfo = petLabelFor(pm.pet);
+        events.push({t, kind:'dmg', dir:pm.dir, source:pm.source, target:pm.target, amount:pm.amount, dtype:pm.dtype, ability:pm.ability, mods:pm.mods, petInfo});
+        return true;
+      })()){
+      // handled above
+    } else {
+      hit = false;
+    }
+    if(hit){
+      matched++;
+      if(minT===null || t<minT) minT=t;
+      if(maxT===null || t>maxT) maxT=t;
+    }
+  }
+  // Collapse the log owner's roster snapshots into change-points only (drop repeats
+  // of the same combo from repeated /who checks), so comboAt() has a clean timeline.
+  const rosterEvents = [];
+  {
+    const own = rosterAll.filter(r=>r.name===charName).sort((a,b)=>a.t-b.t);
+    let lastKey = null;
+    for(const r of own){
+      const key = comboKey(r.codes);
+      if(key !== lastKey){ rosterEvents.push({t:r.t, key, codes:r.codes.slice(), level:r.level}); lastKey = key; }
+    }
+  }
+
+  // Same change-point collapsing for zone transitions ("You have entered <Zone>.").
+  const zoneEvents = [];
+  {
+    let lastZone = null;
+    for(const z of zoneAll){
+      if(z.zone !== lastZone){ zoneEvents.push({t:z.t, zone:z.zone}); lastZone = z.zone; }
+    }
+  }
+
+  // Any charm still open at end-of-log (mob died or log ends before an explicit
+  // "worn off" line) — recorded for completeness; the events it already produced
+  // during the live pass are unaffected either way.
+  for(const [mobName, c] of openCharms){
+    charmWindows.push({mobName, spellName:c.spellName, start:c.start, end:(maxT||c.start)});
+  }
+
+  return {events, charName, totalLines:nonEmpty, matched, minT, maxT, rosterEvents, zoneEvents, charmWindows};
+}
+
+// Which zone (if any) was active at a given time, based on the log owner's own
+// "You have entered <Zone>." transitions. Same pattern as comboAt().
+function zoneAt(zoneEvents, t){
+  if(!zoneEvents || !zoneEvents.length) return null;
+  let result = null;
+  for(const z of zoneEvents){
+    if(z.t <= t) result = z.zone; else break;
+  }
+  return result;
+}
+
+/* ============================== SEGMENTATION ============================== */
+
+function segmentFights(events, gapSec){
+  const combat = events.filter(e=>e.kind==='dmg'||e.kind==='miss'||e.kind==='heal').slice().sort((a,b)=>a.t-b.t);
+  const fights = [];
+  let cur = null;
+  for(const e of combat){
+    if(!cur || (e.t - cur.end)/1000 > gapSec){
+      if(cur) fights.push(cur);
+      cur = {start:e.t, end:e.t, events:[]};
+    }
+    cur.events.push(e);
+    if(e.t > cur.end) cur.end = e.t;
+  }
+  if(cur) fights.push(cur);
+  return fights.filter(f => f.events.some(e=>e.kind==='dmg'));
+}
+
+function aggregateFight(fight, charName){
+  const durationSec = Math.max(1, (fight.end - fight.start)/1000);
+  const targets = new Set();
+  const bySourceOut = {};
+  const takenBySource = {};
+  const missIn = {block:0, dodge:0, parry:0, riposte:0, miss:0};
+  let dmgTaken = 0;
+  let healDone = 0, healReceived = 0;
+  const healDoneBreak = {}, healReceivedBreak = {};
+  const timeline = [];
+  const byClass = {};
+  // Pet/charm damage — tracked entirely separately from the player's own `you`/
+  // `byClass`/dmgTaken totals (never folded in), per identity ("Beastlord warder" or
+  // "Charmed: <mob> (via <spell>)").
+  let petTotal = 0, petTakenTotal = 0;
+  const petByIdentity = {}, petTakenByIdentity = {};
+
+  function srcBucket(name){
+    return bySourceOut[name] || (bySourceOut[name] = {total:0, hits:0, crits:0, misses:0, missByType:{}, byAbility:{}});
+  }
+
+  for(const e of fight.events){
+    if(e.kind === 'dmg'){
+      if(e.dir === 'out'){
+        targets.add(e.target);
+        const s = srcBucket(e.source);
+        const crit = /Critical/.test(e.mods||'');
+        s.total += e.amount; s.hits++; if(crit) s.crits++;
+        const a = s.byAbility[e.ability] || (s.byAbility[e.ability] = {total:0, hits:0, crits:0, max:0, min:Infinity});
+        a.total += e.amount; a.hits++; if(crit) a.crits++;
+        a.max = Math.max(a.max, e.amount); a.min = Math.min(a.min, e.amount);
+        if(e.source === charName){
+          timeline.push({t:e.t, amount:e.amount});
+          const cls = classifyAbility(e.ability) || 'Melee';
+          const cb = byClass[cls] || (byClass[cls] = {total:0, hits:0});
+          cb.total += e.amount; cb.hits++;
+        } else if(e.petInfo){
+          petTotal += e.amount;
+          const pb = petByIdentity[e.petInfo.label] || (petByIdentity[e.petInfo.label] = {total:0, hits:0, byAbility:{}});
+          pb.total += e.amount; pb.hits++;
+          const pa = pb.byAbility[e.ability] || (pb.byAbility[e.ability] = {total:0, hits:0});
+          pa.total += e.amount; pa.hits++;
+        }
+      } else if(e.target === charName){
+        dmgTaken += e.amount;
+        takenBySource[e.source] = (takenBySource[e.source]||0) + e.amount;
+      } else if(e.petInfo){
+        petTakenTotal += e.amount;
+        const pt = petTakenByIdentity[e.petInfo.label] || (petTakenByIdentity[e.petInfo.label] = {total:0, hits:0, bySource:{}});
+        pt.total += e.amount; pt.hits++;
+        pt.bySource[e.source] = (pt.bySource[e.source]||0) + e.amount;
+      }
+    } else if(e.kind === 'miss'){
+      if(e.dir === 'out'){
+        const s = srcBucket(e.source);
+        s.misses++;
+        s.missByType[e.result] = (s.missByType[e.result]||0) + 1;
+      } else {
+        const key = missIn.hasOwnProperty(e.result) ? e.result : 'miss';
+        missIn[key]++;
+      }
+    } else if(e.kind === 'heal'){
+      if(e.source === charName){ healDone += e.amount; healDoneBreak[e.ability] = (healDoneBreak[e.ability]||0)+e.amount; }
+      if(e.target === charName){ healReceived += e.amount; healReceivedBreak[e.ability] = (healReceivedBreak[e.ability]||0)+e.amount; }
+    }
+  }
+
+  const you = bySourceOut[charName] || {total:0, hits:0, crits:0, misses:0, missByType:{}, byAbility:{}};
+  const swings = you.hits + you.misses;
+  const critPct = you.hits ? you.crits/you.hits*100 : 0;
+  const accPct = swings ? you.hits/swings*100 : 0;
+
+  return {
+    start: fight.start, end: fight.end, durationSec,
+    targets: Array.from(targets),
+    you, swings, critPct, accPct,
+    dps: you.total/durationSec,
+    dmgTaken, dtps: dmgTaken/durationSec, takenBySource, missIn,
+    healDone, healReceived, healDoneBreak, healReceivedBreak,
+    timeline: timeline.sort((a,b)=>a.t-b.t),
+    bySourceOut, byClass,
+    petTotal, petByIdentity, petDps: petTotal/durationSec,
+    petTakenTotal, petTakenByIdentity,
+  };
+}
+
+/* ============================== FORMATTING ============================== */
+
+const fmtInt = n => Math.round(n).toLocaleString('en-US');
+const fmt1 = n => (Math.round(n*10)/10).toLocaleString('en-US', {minimumFractionDigits:1, maximumFractionDigits:1});
+const fmtPct = n => (Math.round(n*10)/10) + '%';
+function fmtTime(d){
+  return d.toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+function fmtDur(sec){
+  sec = Math.round(sec);
+  const m = Math.floor(sec/60), s = sec%60;
+  return m>0 ? (m+'m '+s+'s') : (s+'s');
+}
+// A fight's enemy list, ranked by damage taken from each (the best signal available
+// for "which of these mobs actually mattered") and capped so a fight list row or the
+// detail header never has to show a 10-name run-on string — collapses to the top
+// `cap` names plus a "+N more" count instead. Used for both the Fights list rows and
+// the single-fight detail title.
+function targetSummary(targets, takenBySource, cap){
+  if(!targets || !targets.length) return '—';
+  const ranked = targets.slice().sort((x,y)=>(takenBySource[y]||0)-(takenBySource[x]||0));
+  if(ranked.length <= cap) return ranked.join(', ');
+  return ranked.slice(0,cap).join(', ') + ' +' + (ranked.length-cap) + ' more';
+}
+const CAT_COLORS = ['var(--cat-1)','var(--cat-2)','var(--cat-3)','var(--cat-4)','var(--cat-5)','var(--cat-6)','var(--cat-7)','var(--cat-8)'];
+function catColor(i){ return CAT_COLORS[i % CAT_COLORS.length]; }
+
+// Stable per-class color so the same class always reads the same way everywhere on
+// the page (combo bars, ability table, class breakdown) — not tied to insertion order
+// the way catColor() is for per-fight ability lists.
+// Hand-picked per the user's requested colors; where two or more classes were asked
+// for the same color (several wanted blue, several wanted yellow/gold, two wanted
+// purple/red), each got a differentiated shade of that same family rather than a
+// flatly identical color, so they're both "the color you asked for" and still
+// distinguishable at a glance. The 5 classes with no color named (Magician, Rogue,
+// Warrior, Wizard — plus Melee/unclassified, which was explicitly named "white") were
+// filled in to round out the set without colliding with anything above.
+const CLASS_COLOR_MAP = {
+  Melee:'#e9e4d6',             // white — melee & archery auto-attack (explicitly requested)
+  Bard:'#4f8fdb',              // blue (requested) — mid blue
+  Beastlord:'#7dd3fc',         // blue (requested) — light/sky shade, distinct from Bard
+  Shaman:'#3454a0',            // blue (requested) — deep/navy shade, distinct from both above
+  Berserker:'#e5484d',         // red (requested) — bright red
+  'Shadow Knight':'#9c3b4a',   // purple/red (requested) — dark red/maroon, distinct from Berserker
+  Cleric:'#d4af37',            // yellow/gold (requested) — classic metallic gold
+  Paladin:'#e8c872',           // yellow/gold (requested) — paler gold, distinct from Cleric
+  Enchanter:'#f4d35e',         // yellow (requested) — brighter, more saturated yellow
+  Druid:'#8fd694',             // light green (requested)
+  Ranger:'#3a7a3d',            // dark green (requested)
+  Necromancer:'#8a4fd1',       // purple/red (requested) — purple, distinct from Shadow Knight's red
+  Monk:'#2dd4bf',              // teal/turquoise (requested)
+  Magician:'#e8833a',          // (filled in) — orange, classic elemental/fire association
+  Rogue:'#8a93a6',             // (filled in) — slate gray, "shadow"-coded, unused hue
+  Warrior:'#a66a3d',           // (filled in) — bronze/iron brown
+  Wizard:'#7c6fe0',            // (filled in) — arcane blue-violet, distinct from Necromancer's purple
+};
+function classColor(name){
+  if(CLASS_COLOR_MAP[name]) return CLASS_COLOR_MAP[name];
+  let h = 0; for(let i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i)) >>> 0;
+  return CAT_COLORS[h % CAT_COLORS.length];
+}
+
+/* ============================== APP STATE ============================== */
+
+// selectedSet===null means "default": every fight currently visible (after the combo
+// filter) is implicitly selected and aggregated together — not an explicit choice, so
+// list rows aren't individually highlighted for it. Once the viewer clicks a row (or
+// shift/ctrl-clicks), selectedSet becomes a real Set of fight indices and stays that
+// way until they clear it or the filter/log changes.
+const state = { parsed:null, fights:[], selectedSet:null, anchorIdx:null, gapSec:15, isSample:true, comboFilter:null, comboExpanded:false, fightExpanded:false, lastFightOrder:[], comboSort:'total', zoneFilter:null, fightSort:'recent' };
+
+const els = {
+  dropzone: document.getElementById('dropzone'),
+  dzTitle: document.getElementById('dzTitle'),
+  dzSub: document.getElementById('dzSub'),
+  fileInput: document.getElementById('fileInput'),
+  chooseBtn: document.getElementById('chooseBtn'),
+  sampleBtn: document.getElementById('sampleBtn'),
+  sampleBadge: document.getElementById('sampleBadge'),
+  gapSlider: document.getElementById('gapSlider'),
+  gapVal: document.getElementById('gapVal'),
+  tiles: document.getElementById('tiles'),
+  comboPanel: document.getElementById('comboPanel'),
+  comboList: document.getElementById('comboList'),
+  comboCount: document.getElementById('comboCount'),
+  comboToggle: document.getElementById('comboToggle'),
+  comboSortSel: document.getElementById('comboSortSel'),
+  workspace: document.getElementById('workspace'),
+  fightList: document.getElementById('fightList'),
+  fightCount: document.getElementById('fightCount'),
+  fightClearSel: document.getElementById('fightClearSel'),
+  fightToggle: document.getElementById('fightToggle'),
+  zoneFilterSel: document.getElementById('zoneFilterSel'),
+  fightSortSel: document.getElementById('fightSortSel'),
+  detailTitle: document.getElementById('detailTitle'),
+  detailMeta: document.getElementById('detailMeta'),
+  detailBody: document.getElementById('detailBody'),
+};
+
+// Every fight in original-index order, or only those matching the active combo
+// filter — {f, i} keeps the original index so selection/highlighting still lines up.
+function visibleFights(){
+  const p = state.parsed;
+  const roster = p ? (p.rosterEvents||[]) : [];
+  const zones = p ? (p.zoneEvents||[]) : [];
+  let list = state.fights.map((f,i)=>({f, i}));
+  if(state.comboFilter){
+    list = list.filter(o => (comboAt(roster, o.f.start) || 'unknown') === state.comboFilter);
+  }
+  if(state.zoneFilter){
+    list = list.filter(o => (zoneAt(zones, o.f.start) || 'Unknown zone') === state.zoneFilter);
+  }
+  return list;
+}
+
+function applyParsed(parsed, filename, isSample){
+  state.isSample = !!isSample;
+  state.comboFilter = null;
+  state.comboExpanded = false;
+  state.selectedSet = null;
+  state.anchorIdx = null;
+  state.fightExpanded = false;
+  state.zoneFilter = null;
+  els.sampleBadge.hidden = !isSample;
+  state.parsed = parsed;
+  state.fights = segmentFights(parsed.events, state.gapSec);
+  els.dzTitle.textContent = isSample ? ('Demo: ' + filename) : ('Loaded: ' + filename);
+  els.dzSub.textContent = parsed.charName + ' · ' + fmtInt(parsed.matched) + ' combat lines parsed'
+    + (isSample ? ' — drop your own log to replace it' : '');
+  render();
+}
+
+function loadText(text, filename, isSample){
+  applyParsed(parseLog(text), filename, isSample);
+}
+
+// The default/demo view loads a much larger pre-parsed real play log (not raw text,
+// which would be tens of MB) shipped alongside this page as a gzipped JSON file and
+// decompressed client-side with the browser's built-in DecompressionStream. Falls
+// back to a small embedded raw-text demo if that fetch/decompress fails for any
+// reason (offline preview, older browser, file missing, etc.).
+function hydrateParsedData(raw){
+  return {
+    charName: raw.charName,
+    totalLines: raw.totalLines,
+    matched: raw.matched,
+    minT: raw.minT ? new Date(raw.minT) : null,
+    maxT: raw.maxT ? new Date(raw.maxT) : null,
+    rosterEvents: (raw.rosterEvents||[]).map(r => Object.assign({}, r, {t:new Date(r.t)})),
+    zoneEvents: (raw.zoneEvents||[]).map(z => Object.assign({}, z, {t:new Date(z.t)})),
+    events: raw.events.map(e => Object.assign({}, e, {t:new Date(e.t)})),
+  };
+}
+
+async function loadBigDemo(){
+  try{
+    const resp = await fetch('sample-full.b64.txt');
+    if(!resp.ok) throw new Error('big demo fetch failed: ' + resp.status);
+    const b64 = await resp.text();
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    const text = await new Response(stream).text();
+    const raw = JSON.parse(text);
+    applyParsed(hydrateParsedData(raw), 'Codaa · Sep 21–Oct 22 (32-day log)', true);
+  } catch(err){
+    applyParsed(parseLog(SAMPLE_LOG), 'sample-log.txt', true);
+  }
+}
+
+function resegment(){
+  if(!state.parsed) return;
+  // Fight boundaries (and therefore fight indices) are entirely different after a gap
+  // threshold change, so any explicit fight selection is now meaningless — fall back
+  // to the default (all fights in the current combo filter) rather than pointing at
+  // the wrong fight.
+  state.fights = segmentFights(state.parsed.events, state.gapSec);
+  state.selectedSet = null;
+  state.anchorIdx = null;
+  state.fightExpanded = false;
+  render();
+}
+
+/* ============================== RENDER: SUMMARY ============================== */
+
+function render(){
+  const p = state.parsed;
+  if(!p){ els.tiles.hidden = true; els.comboPanel.hidden = true; els.workspace.hidden = true; return; }
+
+  els.tiles.hidden = false;
+  els.workspace.hidden = false;
+
+  const totalDmg = state.fights.reduce((s,f)=>{
+    const a = aggregateFight(f, 'You'); return s + a.you.total;
+  }, 0);
+  const totalTaken = state.fights.reduce((s,f)=>{
+    const a = aggregateFight(f, 'You'); return s + a.dmgTaken;
+  }, 0);
+  const combatSec = state.fights.reduce((s,f)=>s+Math.max(1,(f.end-f.start)/1000), 0);
+  const overallDps = combatSec ? totalDmg/combatSec : 0;
+  const coverage = p.totalLines ? (p.matched/p.totalLines*100) : 0;
+  const range = (p.minT && p.maxT) ? (fmtTime(p.minT) + ' – ' + fmtTime(p.maxT)) : '—';
+
+  els.tiles.innerHTML = [
+    tile('Character', esc(p.charName), null, ''),
+    tile('Fights detected', fmtInt(state.fights.length), 'gold', ''),
+    tile('Total damage dealt', fmtInt(totalDmg), 'gold', 'across all fights'),
+    tile('Active DPS', fmtInt(overallDps), 'gold', 'while in combat'),
+    tile('Damage taken', fmtInt(totalTaken), 'crimson', ''),
+    tile('Session span', range, null, ''),
+    tile('Parse coverage', fmtPct(coverage), null, fmtInt(p.matched)+' / '+fmtInt(p.totalLines)+' lines'),
+  ].join('');
+
+  renderCombos();
+  renderFightList();
+  renderDetail();
+}
+
+/* ============================== RENDER: COMBOS ============================== */
+
+function renderCombos(){
+  const p = state.parsed;
+  const roster = p.rosterEvents || [];
+  els.comboPanel.hidden = !roster.length;
+  if(!roster.length) return;
+
+  const groups = {};
+  state.fights.forEach(f=>{
+    const key = comboAt(roster, f.start) || 'unknown';
+    const a = aggregateFight(f, 'You');
+    const g = groups[key] || (groups[key] = {key, total:0, sec:0, fightCount:0, byClass:{}, lastT:f.start});
+    g.total += a.you.total;
+    g.sec += a.durationSec;
+    g.fightCount++;
+    if(f.start > g.lastT) g.lastT = f.start;
+    for(const [cls, st] of Object.entries(a.byClass)){
+      g.byClass[cls] = (g.byClass[cls]||0) + st.total;
+    }
+  });
+
+  const sortKey = state.comboSort || 'total';
+  const sortFn = sortKey === 'fights' ? (x,y)=>y.fightCount-x.fightCount
+    : sortKey === 'dps' ? (x,y)=>((y.sec?y.total/y.sec:0)-(x.sec?x.total/x.sec:0))
+    : sortKey === 'recent' ? (x,y)=>y.lastT - x.lastT
+    : (x,y)=>y.total-x.total;
+  const groupList = Object.values(groups).sort(sortFn);
+  els.comboCount.textContent = groupList.length;
+  els.comboSortSel.value = sortKey;
+  const rankOf = {};
+  groupList.forEach((g,idx)=>rankOf[g.key]=idx+1);
+
+  // Collapsed by default to the top 3 combos (by whichever metric is selected to sort
+  // on). If the currently-filtered combo falls outside that top 3, don't just force a
+  // full expand — show the top 1, top 2, and the selected combo together. Every card
+  // always carries its rank badge (e.g. "#8"), not just the out-of-top-3 one, so rank
+  // is visible at a glance regardless of which combo (if any) is selected.
+  const COLLAPSE_AT = 3;
+  const activeIdx = state.comboFilter ? groupList.findIndex(g=>g.key===state.comboFilter) : -1;
+  const expanded = state.comboExpanded || groupList.length <= COLLAPSE_AT;
+  let visibleGroups;
+  if(expanded){
+    visibleGroups = groupList;
+  } else if(activeIdx >= 2){
+    visibleGroups = [groupList[0], groupList[1], groupList[activeIdx]];
+  } else {
+    visibleGroups = groupList.slice(0, COLLAPSE_AT);
+  }
+
+  if(groupList.length > COLLAPSE_AT){
+    els.comboToggle.hidden = false;
+    els.comboToggle.textContent = expanded ? 'Show top '+COLLAPSE_AT : 'Show all '+groupList.length;
+  } else {
+    els.comboToggle.hidden = true;
+  }
+
+  els.comboList.innerHTML = visibleGroups.map(g=>{
+    const label = g.key === 'unknown' ? 'Unknown combo (before first /who)' : comboLabel(g.key);
+    const dps = g.sec ? g.total/g.sec : 0;
+    const active = g.key === 'unknown' ? null : comboClassNames(g.key);
+    const classEntries = Object.entries(g.byClass).sort((x,y)=>y[1]-x[1]);
+    const segs = classEntries.map(([cls,val])=>{
+      const pct = g.total ? val/g.total*100 : 0;
+      const offCombo = active && cls!=='Melee' && !active.has(cls);
+      return '<span class="stack-seg'+(offCombo?' off-combo':'')+'" style="width:'+pct+'%;background:'+classColor(cls)+'" title="'+esc(cls)+(offCombo?' (off-combo)':'')+': '+fmtInt(val)+'"></span>';
+    }).join('');
+    const legend = classEntries.map(([cls,val])=>{
+      const pct = g.total ? val/g.total*100 : 0;
+      const offCombo = active && cls!=='Melee' && !active.has(cls);
+      return '<span><span class="sw" style="background:'+classColor(cls)+'"></span>'+esc(cls)+(offCombo?'*':'')+' '+fmtPct(pct)+'</span>';
+    }).join('');
+    const rankChip = ' <span class="combo-chip" title="Rank by current sort">#'+rankOf[g.key]+'</span>';
+    return '<button class="combo-card'+(state.comboFilter===g.key?' active':'')+'" data-key="'+esc(g.key)+'" type="button">'+
+      '<div class="combo-head"><span class="combo-name">'+esc(label)+rankChip+'</span>'+
+        '<span class="combo-stats"><span><b>'+fmtInt(g.total)+'</b> dmg</span><span><b>'+fmtInt(dps)+'</b> dps</span><span><b>'+fmtDur(g.sec)+'</b></span><span><b>'+g.fightCount+'</b> fight'+(g.fightCount===1?'':'s')+'</span></span>'+
+      '</div>'+
+      '<div class="stack-bar">'+segs+'</div>'+
+      '<div class="combo-legend">'+legend+'</div>'+
+    '</button>';
+  }).join('');
+
+  els.comboList.querySelectorAll('.combo-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const key = card.dataset.key;
+      state.comboFilter = (state.comboFilter === key) ? null : key;
+      // Switching combos changes which fights are even in play, so drop any explicit
+      // fight selection and default back to "all fights in this combo" rather than
+      // carrying a selection over that may no longer make sense.
+      state.selectedSet = null;
+      state.anchorIdx = null;
+      state.fightExpanded = false;
+      // Auto-collapse back down after picking one — otherwise a combo picked from the
+      // "Show all" list (because it wasn't in the top 3) would just sit there expanded
+      // forever, and the whole point of the rank-badge view is to show it compactly
+      // without forcing a full list every time.
+      state.comboExpanded = false;
+      renderCombos();
+      renderFightList();
+      renderDetail();
+    });
+  });
+}
+
+function tile(label, value, tone, sub){
+  return '<div class="tile"><div class="tl-label">'+esc(label)+'</div>' +
+    '<div class="tl-value'+(tone?' '+tone:'')+'">'+value+'</div>' +
+    (sub?'<div class="tl-sub">'+esc(sub)+'</div>':'') + '</div>';
+}
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ============================== RENDER: FIGHT LIST ============================== */
+
+function renderFightList(){
+  const p = state.parsed;
+  const roster = p.rosterEvents || [];
+  const zoneEv = p.zoneEvents || [];
+
+  // Zone filter options, built from the full fight set (not the currently-filtered
+  // one) so switching zones never makes other zones' options disappear.
+  if(zoneEv.length){
+    const zoneCounts = {};
+    state.fights.forEach(f=>{
+      const z = zoneAt(zoneEv, f.start) || 'Unknown zone';
+      zoneCounts[z] = (zoneCounts[z]||0) + 1;
+    });
+    const zoneNames = Object.keys(zoneCounts).sort((a,b)=>zoneCounts[b]-zoneCounts[a]);
+    els.zoneFilterSel.hidden = false;
+    els.zoneFilterSel.innerHTML = '<option value="">All zones</option>' +
+      zoneNames.map(z=>'<option value="'+esc(z)+'">'+esc(z)+' ('+zoneCounts[z]+')</option>').join('');
+    els.zoneFilterSel.value = state.zoneFilter || '';
+  } else {
+    els.zoneFilterSel.hidden = true;
+  }
+
+  const visible = visibleFights();
+  els.fightCount.textContent = (state.comboFilter || state.zoneFilter) ? (visible.length + ' / ' + state.fights.length) : state.fights.length;
+
+  els.fightClearSel.hidden = (state.selectedSet === null);
+
+  if(!visible.length){
+    els.fightList.innerHTML = '<li class="empty-note">'+(state.comboFilter ? 'No fights for this combo.' : 'No fights matched in this log.')+'</li>';
+    els.fightToggle.hidden = true;
+    state.lastFightOrder = [];
+    return;
+  }
+
+  const fightSortKey = state.fightSort || 'recent';
+  const fightSortFn = fightSortKey === 'damage' ? (x,y)=>y.a.you.total - x.a.you.total
+    : fightSortKey === 'dps' ? (x,y)=>y.a.dps - x.a.dps
+    : fightSortKey === 'duration' ? (x,y)=>y.a.durationSec - x.a.durationSec
+    : (x,y)=>y.f.start - x.f.start; // 'recent' (default): most recent fight first
+  const ranked = visible.map(({f,i})=>({f, i, a: aggregateFight(f, 'You')})).sort(fightSortFn);
+  state.lastFightOrder = ranked.map(o=>o.i);
+  els.fightSortSel.value = fightSortKey;
+
+  const COLLAPSE_AT = 3;
+  const forceExpand = state.selectedSet
+    ? [...state.selectedSet].some(i => !state.lastFightOrder.slice(0,COLLAPSE_AT).includes(i))
+    : false;
+  const expanded = state.fightExpanded || forceExpand || ranked.length <= COLLAPSE_AT;
+  const shown = expanded ? ranked : ranked.slice(0, COLLAPSE_AT);
+
+  if(ranked.length > COLLAPSE_AT){
+    els.fightToggle.hidden = false;
+    els.fightToggle.textContent = expanded ? 'Show top '+COLLAPSE_AT : 'Show all '+ranked.length;
+  } else {
+    els.fightToggle.hidden = true;
+  }
+
+  const rows = shown.map(({f,i,a})=>{
+    const tgt = a.targets.length ? targetSummary(a.targets, a.takenBySource, 3) : '—';
+    const key = comboAt(roster, f.start);
+    const chip = key ? '<span class="combo-chip">'+esc(key)+'</span>' : '';
+    const isActive = state.selectedSet ? state.selectedSet.has(i) : false;
+    return '<li>'+
+      '<button class="fight-row'+(isActive?' active':'')+'" data-idx="'+i+'">'+
+        '<div class="fr-top"><span class="fr-target">'+esc(tgt)+'</span><span class="fr-dps mono">'+fmtInt(a.dps)+' dps</span></div>'+
+        '<div class="fr-meta"><span>'+fmtTime(f.start)+'</span><span>'+fmtDur(a.durationSec)+'</span><span>'+fmtInt(a.you.total)+' dmg</span>'+chip+'</div>'+
+      '</button>'+
+    '</li>';
+  });
+  els.fightList.innerHTML = rows.join('');
+  els.fightList.querySelectorAll('.fight-row').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const idx = +btn.dataset.idx;
+      const order = state.lastFightOrder;
+      if(e.shiftKey && state.anchorIdx !== null && order.includes(state.anchorIdx)){
+        const aPos = order.indexOf(state.anchorIdx), bPos = order.indexOf(idx);
+        const lo = Math.min(aPos,bPos), hi = Math.max(aPos,bPos);
+        state.selectedSet = new Set(order.slice(lo, hi+1));
+      } else if(e.metaKey || e.ctrlKey){
+        const current = new Set(state.selectedSet ? state.selectedSet : visible.map(o=>o.i));
+        if(current.has(idx)) current.delete(idx); else current.add(idx);
+        state.selectedSet = current.size ? current : null;
+        state.anchorIdx = idx;
+      } else {
+        state.selectedSet = new Set([idx]);
+        state.anchorIdx = idx;
+      }
+      renderFightList();
+      renderDetail();
+    });
+  });
+}
+
+/* ============================== RENDER: DETAIL ============================== */
+
+// Merges several fights into one aggregate using the exact same per-event logic as a
+// single fight (by concatenating their events and running them through aggregateFight
+// once), then corrects the duration-derived numbers afterward: aggregateFight would
+// otherwise compute duration as the wall-clock span from the earliest fight's start to
+// the latest fight's end, which counts the idle time *between* fights as if it were
+// part of the fight and badly understates DPS. Using the sum of each fight's own
+// duration instead keeps DPS/DTPS meaningful for a multi-fight selection.
+function aggregateMulti(fightsArr, charName){
+  const mergedEvents = [].concat(...fightsArr.map(f=>f.events));
+  let minStart = fightsArr[0].start, maxEnd = fightsArr[0].end, sumSec = 0;
+  for(const f of fightsArr){
+    if(f.start < minStart) minStart = f.start;
+    if(f.end > maxEnd) maxEnd = f.end;
+    sumSec += Math.max(1, (f.end - f.start)/1000);
+  }
+  const a = aggregateFight({start:minStart, end:maxEnd, events:mergedEvents}, charName);
+  a.durationSec = sumSec;
+  a.dps = sumSec ? a.you.total/sumSec : 0;
+  a.dtps = sumSec ? a.dmgTaken/sumSec : 0;
+  a.petDps = sumSec ? a.petTotal/sumSec : 0;
+  return a;
+}
+
+// A per-fight "which of the selected fights did this damage come from" bar list —
+// stands in for the single-fight damage-over-time chart when several fights are
+// selected, since bucketing a merged timeline by wall-clock time mostly shows empty
+// gaps between fights rather than anything useful. Ranked by damage, capped so a
+// large multi-select (e.g. "all fights" on a long log) doesn't render hundreds of rows.
+function fightsCompareList(selected){
+  const CAP = 25;
+  const rows = selected.map(({f,i})=>{
+    const ag = aggregateFight(f, 'You');
+    const tgt = ag.targets.length ? ag.targets.join(', ') : 'Unknown target';
+    return {name: tgt + ' · ' + fmtTime(f.start), total: ag.you.total, dps: ag.dps};
+  }).sort((x,y)=>y.total-x.total);
+  const shown = rows.slice(0, CAP);
+  const maxV = Math.max(1, ...shown.map(r=>r.total));
+  let out = '<ul class="mini-list">' + shown.map(r=>{
+    return '<li class="mini-row"><span class="mini-name" title="'+esc(r.name)+'">'+esc(r.name)+'</span>'+
+      '<span class="mini-track"><span class="mini-fill" style="width:'+(r.total/maxV*100)+'%;background:var(--gold)"></span></span>'+
+      '<span class="mini-val">'+fmtInt(r.total)+' <span style="color:var(--ink-faint);font-weight:400">('+fmtInt(r.dps)+' dps)</span></span></li>';
+  }).join('') + '</ul>';
+  if(rows.length > CAP){
+    out += '<p class="off-combo-note">Showing the top '+CAP+' of '+rows.length+' selected fights by damage.</p>';
+  }
+  return out;
+}
+
+function renderDetail(){
+  const p = state.parsed;
+  if(!state.fights.length){
+    els.detailTitle.textContent = 'Fight detail';
+    els.detailMeta.textContent = '';
+    els.detailBody.innerHTML = '<p class="empty-note">No fights matched in this log. Try widening the gap threshold above, or load a log with combat activity.</p>';
+    return;
+  }
+
+  const visible = visibleFights();
+  const selected = state.selectedSet ? visible.filter(o=>state.selectedSet.has(o.i)) : visible;
+  if(!selected.length){
+    els.detailTitle.textContent = 'Fight detail';
+    els.detailMeta.textContent = '';
+    els.detailBody.innerHTML = '<p class="empty-note">No fights selected.</p>';
+    return;
+  }
+
+  const isMulti = selected.length > 1;
+  // A combo filter applies to every selected fight, so it's always the right answer
+  // when set. With no filter: a single fight still has its own detected combo (from
+  // its own start time), but a multi-fight selection with no filter may genuinely
+  // span several combos, so there's no one confident comboK to compare against for
+  // off-combo flags there.
+  const comboK = state.comboFilter
+    ? state.comboFilter
+    : (isMulti ? null : comboAt(p.rosterEvents||[], selected[0].f.start));
+
+  let a, tgt;
+  if(isMulti){
+    a = aggregateMulti(selected.map(o=>o.f), 'You');
+    tgt = (state.selectedSet ? selected.length+' fights selected' : 'All '+selected.length+' fights');
+  } else {
+    a = aggregateFight(selected[0].f, 'You');
+    tgt = a.targets.length ? targetSummary(a.targets, a.takenBySource, 3) : 'Unknown target';
+  }
+
+  els.detailTitle.textContent = tgt;
+  const metaEnd = isMulti ? selected[selected.length-1].f.end : selected[0].f.end;
+  els.detailMeta.textContent = fmtTime(selected[0].f.start) + ' – ' + fmtTime(metaEnd) + (comboK ? '  ·  ' + comboLabel(comboK) : '');
+
+  let html = '';
+
+  html += '<div class="dt-head">'+
+    '<div class="dt-headline"><div class="hl-label">DPS</div><div class="hl-value">'+fmtInt(a.dps)+'</div></div>'+
+    '<div class="dt-stat"><div class="hl-label">Duration</div><div class="hl-value">'+fmtDur(a.durationSec)+'</div></div>'+
+    '<div class="dt-stat"><div class="hl-label">Total damage</div><div class="hl-value">'+fmtInt(a.you.total)+'</div></div>'+
+    (isMulti ? '<div class="dt-stat"><div class="hl-label">Fights</div><div class="hl-value">'+selected.length+'</div></div>' : '')+
+    '<div class="dt-stat"><div class="hl-label">Accuracy</div><div class="hl-value">'+fmtPct(a.accPct)+'</div></div>'+
+    '<div class="dt-stat"><div class="hl-label">Crit rate</div><div class="hl-value">'+fmtPct(a.critPct)+'</div></div>'+
+    (a.dmgTaken ? '<div class="dt-stat"><div class="hl-label">Damage taken</div><div class="hl-value" style="color:var(--crimson)">'+fmtInt(a.dmgTaken)+'</div></div>' : '')+
+  '</div>';
+
+  if(isMulti){
+    html += '<div class="section-title">Damage by fight</div>';
+    html += fightsCompareList(selected);
+  } else {
+    html += '<div class="section-title">Damage over time</div>';
+    html += '<div class="chart-wrap" id="chartWrap"></div>';
+  }
+
+  // Class breakdown (which of the active combo's classes dealt the damage)
+  html += '<div class="section-title">Damage by class</div>';
+  html += classBreakdown(a, comboK);
+
+  // Ability breakdown
+  html += '<div class="section-title">Damage by ability</div>';
+  html += abilityTable(a.you);
+
+  // Two column: misses + healing
+  html += '<div class="twocol">';
+  html += '<div><div class="section-title">Attack outcomes</div>'+outcomeList(a)+'</div>';
+  html += '<div><div class="section-title">Healing</div>'+healList(a)+'</div>';
+  html += '</div>';
+
+  if(a.dmgTaken){
+    html += '<div class="section-title">Damage taken by source</div>';
+    html += takenTable(a);
+  }
+
+  if(a.petTotal){
+    html += '<div class="section-title">Pets (separate from your own total)</div>';
+    html += petList(a);
+  }
+
+  els.detailBody.innerHTML = html;
+  if(!isMulti){
+    drawChart(document.getElementById('chartWrap'), a);
+  }
+}
+
+function abilityTable(you){
+  const abilities = Object.entries(you.byAbility).sort((x,y)=>y[1].total-x[1].total);
+  if(!abilities.length) return '<p class="empty-note">No outgoing damage recorded in this fight.</p>';
+  let rows = abilities.map(([name,st],i)=>{
+    const avg = st.total/st.hits;
+    const critPct = st.hits ? st.crits/st.hits*100 : 0;
+    const pct = you.total ? st.total/you.total*100 : 0;
+    const cls = classifyAbility(name) || 'Melee';
+    return '<tr>'+
+      '<td><div class="abl-name"><span class="swatch" style="background:'+catColor(i)+'"></span>'+esc(name)+'</div></td>'+
+      '<td><span class="combo-chip" style="color:'+classColor(cls)+';border-color:'+classColor(cls)+'">'+esc(cls)+'</span></td>'+
+      '<td class="num">'+st.hits+'</td>'+
+      '<td class="num">'+fmtPct(critPct)+'</td>'+
+      '<td class="num">'+fmtInt(avg)+'</td>'+
+      '<td class="num">'+fmtInt(st.max)+'</td>'+
+      '<td class="num">'+fmtInt(st.total)+'</td>'+
+      '<td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:'+(pct)+'%;background:'+catColor(i)+'"></div></div></td>'+
+    '</tr>';
+  }).join('');
+  return '<div class="overflow-x"><table class="abl"><thead><tr>'+
+    '<th>Ability</th><th>Class</th><th style="text-align:right">Hits</th><th style="text-align:right">Crit%</th>'+
+    '<th style="text-align:right">Avg</th><th style="text-align:right">Max</th><th style="text-align:right">Total</th><th>% of damage</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+// Full class names that make up a combo key (e.g. "BRD/RNG/WIZ" -> Set{Bard,Ranger,Wizard}).
+function comboClassNames(comboK){
+  if(!comboK) return null;
+  return new Set(comboK.split('/').map(c => CLASS_CODES[c] || c));
+}
+
+function classBreakdown(a, comboK){
+  const entries = Object.entries(a.byClass).sort((x,y)=>y[1].total-x[1].total);
+  if(!entries.length) return '<p class="empty-note">No classified damage in this fight.</p>';
+  const maxV = Math.max(...entries.map(e=>e[1].total), 1);
+  const active = comboClassNames(comboK);
+  const hasOffCombo = active ? entries.some(([cls])=> cls!=='Melee' && !active.has(cls)) : false;
+  let out = '<ul class="mini-list">' + entries.map(([cls,st])=>{
+    const pct = a.you.total ? st.total/a.you.total*100 : 0;
+    const offCombo = active && cls!=='Melee' && !active.has(cls);
+    return '<li class="mini-row"><span class="mini-name">'+esc(cls)+(offCombo?' <span class="off-combo-flag" title="This class was not part of the detected loadout for this fight. Two known causes: an undetected persona swap between /who snapshots, or a weapon/item proc casting a spell outside class lines.">off-combo</span>':'')+'</span>'+
+      '<span class="mini-track"><span class="mini-fill" style="width:'+(st.total/maxV*100)+'%;background:'+classColor(cls)+'"></span></span>'+
+      '<span class="mini-val">'+fmtInt(st.total)+' <span style="color:var(--ink-faint);font-weight:400">('+fmtPct(pct)+')</span></span></li>';
+  }).join('') + '</ul>';
+  if(hasOffCombo){
+    out += '<p class="off-combo-note">Damage tagged "off-combo" came from a class outside the detected 3-class loadout for this period. Two known causes: the loadout changed between two <code>/who</code> snapshots without a swap being caught, or a weapon/item proc is casting a spell that belongs to a different class than your active persona — treat it as a hint, not a certainty.</p>';
+  }
+  return out;
+}
+
+function outcomeList(a){
+  const you = a.you;
+  const items = [
+    ['Hit', you.hits, 'var(--jade)'],
+    ['Miss', you.missByType.miss||0, 'var(--ink-faint)'],
+    ['Dodged', you.missByType.dodges||you.missByType.dodge||0, 'var(--cat-4)'],
+    ['Parried', you.missByType.parries||you.missByType.parry||0, 'var(--cat-2)'],
+    ['Blocked', you.missByType.blocks||you.missByType.block||0, 'var(--cat-7)'],
+    ['Absorbed', you.missByType.absorb||0, 'var(--cat-5)'],
+  ];
+  const total = a.swings || 1;
+  const maxV = Math.max(...items.map(i=>i[1]), 1);
+  return '<ul class="mini-list">' + items.map(([name,val,color])=>{
+    return '<li class="mini-row"><span class="mini-name">'+name+'</span>'+
+      '<span class="mini-track"><span class="mini-fill" style="width:'+(val/maxV*100)+'%;background:'+color+'"></span></span>'+
+      '<span class="mini-val">'+val+' <span style="color:var(--ink-faint);font-weight:400">('+fmtPct(val/total*100)+')</span></span></li>';
+  }).join('') + '</ul>';
+}
+
+function healList(a){
+  const done = Object.entries(a.healDoneBreak).sort((x,y)=>y[1]-x[1]);
+  const recv = Object.entries(a.healReceivedBreak).sort((x,y)=>y[1]-x[1]);
+  if(!done.length && !recv.length){
+    return '<p class="empty-note" style="text-align:left;padding:8px 0;">No healing recorded in this fight.</p>';
+  }
+  const maxV = Math.max(1, ...done.map(d=>d[1]), ...recv.map(d=>d[1]));
+  let out = '<ul class="mini-list">';
+  done.forEach(([name,val])=>{
+    out += '<li class="mini-row"><span class="mini-name">Healed → '+esc(name)+'</span>'+
+      '<span class="mini-track"><span class="mini-fill" style="width:'+(val/maxV*100)+'%;background:var(--jade)"></span></span>'+
+      '<span class="mini-val">'+fmtInt(val)+'</span></li>';
+  });
+  recv.forEach(([name,val])=>{
+    out += '<li class="mini-row"><span class="mini-name">Received ← '+esc(name)+'</span>'+
+      '<span class="mini-track"><span class="mini-fill" style="width:'+(val/maxV*100)+'%;background:var(--gold)"></span></span>'+
+      '<span class="mini-val">'+fmtInt(val)+'</span></li>';
+  });
+  return out + '</ul>';
+}
+
+function takenTable(a){
+  const sorted = Object.entries(a.takenBySource).sort((x,y)=>y[1]-x[1]);
+  const TOP = 3;
+  const shown = sorted.slice(0, TOP);
+  const rest = sorted.slice(TOP);
+  const rowHtml = ([name,val]) => '<tr><td>'+esc(name)+'</td><td class="num">'+fmtInt(val)+'</td></tr>';
+  let rows = shown.map(rowHtml).join('');
+  let tail = '';
+  if(rest.length){
+    const extraRows = rest.map(rowHtml).join('');
+    tail = '<tr class="taken-more-row"><td colspan="2">'+
+      '<button type="button" class="btn btn-ghost btn-small" onclick="'+
+        "var tb=this.closest('table').querySelector('tbody'); var extra=tb.querySelectorAll('.taken-extra'); " +
+        "var hiding=!extra[0].hidden; extra.forEach(function(r){r.hidden=hiding;}); " +
+        "this.textContent = hiding ? 'Show fewer' : '+"+rest.length+" more';" +
+      '">+'+rest.length+' more</button>'+
+    '</td></tr>' +
+    rest.map(([name,val])=>'<tr class="taken-extra" hidden><td>'+esc(name)+'</td><td class="num">'+fmtInt(val)+'</td></tr>').join('');
+  }
+  return '<div class="overflow-x"><table class="abl"><thead><tr><th>Source</th><th style="text-align:right">Damage</th></tr></thead><tbody>'+rows+tail+'</tbody></table></div>';
+}
+
+// Pet/charm damage, broken out by identity — deliberately rendered as its own section
+// rather than folded into the player's own ability/class tables above, per the "keep
+// it separate, don't just inflate my own number" request.
+function petList(a){
+  const entries = Object.entries(a.petByIdentity).sort((x,y)=>y[1].total-x[1].total);
+  if(!entries.length) return '';
+  const maxV = Math.max(...entries.map(e=>e[1].total), 1);
+  let out = '<ul class="mini-list">' + entries.map(([label,st])=>{
+    const pct = a.petTotal ? st.total/a.petTotal*100 : 0;
+    return '<li class="mini-row"><span class="mini-name">'+esc(label)+'</span>'+
+      '<span class="mini-track"><span class="mini-fill" style="width:'+(st.total/maxV*100)+'%;background:var(--cat-6)"></span></span>'+
+      '<span class="mini-val">'+fmtInt(st.total)+' <span style="color:var(--ink-faint);font-weight:400">('+fmtPct(pct)+')</span></span></li>';
+  }).join('') + '</ul>';
+  const combined = fmtInt((a.you.total||0) + a.petTotal);
+  const takenNote = a.petTakenTotal ? (' Pets absorbed '+fmtInt(a.petTakenTotal)+' damage taken, also kept separate from your own damage-taken above.') : '';
+  out += '<p class="off-combo-note">Pet/charm damage is tracked separately and is <b>not</b> included in your own total, DPS, or class breakdown above. Combined (you + pets): '+combined+' dmg.'+takenNote+
+    ' Pets are identified three ways: the Beastlord warder is unambiguous (name-tagged to you in the log itself); a charmed mob is matched by name during the charm\'s active window &mdash; if another, uncharmed mob of the exact same name was fighting elsewhere at the same moment, this could rarely misattribute; any other pet (Necromancer, Magician, Shadow Knight, etc.) is identified the moment it acknowledges a /pet command (it always addresses you as "Master"), which is only ever sent to its own owner &mdash; but if you never command that pet during the log, its damage won\'t be linked to you this way.</p>';
+  return out;
+}
+
+/* ============================== CHART ============================== */
+
+function drawChart(container, a){
+  container.innerHTML = '';
+  const w = container.clientWidth || 600, h = 180;
+  const padL = 8, padR = 8, padT = 10, padB = 20;
+
+  if(!a.timeline.length){
+    container.innerHTML = '<p class="empty-note" style="padding:40px 0;">No outgoing damage events to chart.</p>';
+    return;
+  }
+
+  const bucketCount = Math.max(6, Math.min(50, Math.round(a.durationSec/3)));
+  const bucketSec = a.durationSec / bucketCount;
+  const buckets = new Array(bucketCount).fill(0);
+  for(const ev of a.timeline){
+    let idx = Math.floor((ev.t - a.start)/1000 / bucketSec);
+    if(idx >= bucketCount) idx = bucketCount-1;
+    if(idx < 0) idx = 0;
+    buckets[idx] += ev.amount;
+  }
+  const maxB = Math.max(...buckets, 1);
+
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const x = i => padL + (i/(bucketCount-1||1)) * plotW;
+  const y = v => padT + plotH - (v/maxB)*plotH;
+
+  const pts = buckets.map((v,i)=>[x(i), y(v)]);
+  const linePath = pts.map((p,i)=>(i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const areaPath = linePath + ' L'+x(bucketCount-1).toFixed(1)+','+(padT+plotH)+' L'+x(0).toFixed(1)+','+(padT+plotH)+' Z';
+
+  const gridLines = [0,0.5,1].map(f=>{
+    const gy = padT + plotH*(1-f);
+    const val = fmtInt(maxB*f);
+    return '<line x1="'+padL+'" x2="'+(w-padR)+'" y1="'+gy+'" y2="'+gy+'" stroke="var(--border-soft)" stroke-width="1"/>'+
+      '<text x="'+padL+'" y="'+(gy-4)+'" fill="var(--ink-faint)" font-size="10" font-family="JetBrains Mono, monospace">'+val+'</text>';
+  }).join('');
+
+  const lastPt = pts[pts.length-1];
+
+  const svgNs = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNs,'svg');
+  svg.setAttribute('class','chart');
+  svg.setAttribute('viewBox', '0 0 '+w+' '+h);
+  svg.innerHTML =
+    '<defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">'+
+      '<stop offset="0%" stop-color="var(--gold)" stop-opacity="0.35"/>'+
+      '<stop offset="100%" stop-color="var(--gold)" stop-opacity="0"/>'+
+    '</linearGradient></defs>'+
+    gridLines +
+    '<path d="'+areaPath+'" fill="url(#areaGrad)" stroke="none"/>'+
+    '<path d="'+linePath+'" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<circle cx="'+lastPt[0]+'" cy="'+lastPt[1]+'" r="3.5" fill="var(--gold)" stroke="var(--surface-2)" stroke-width="1.5"/>'+
+    '<rect id="hoverRect" x="'+padL+'" y="0" width="'+plotW+'" height="'+h+'" fill="transparent"/>';
+
+  const tip = document.createElement('div');
+  tip.className = 'chart-tip';
+  tip.hidden = true;
+  container.style.position = 'relative';
+  container.appendChild(svg);
+  container.appendChild(tip);
+
+  const hoverRect = svg.getElementById ? svg.querySelector('#hoverRect') : null;
+  let marker = document.createElementNS(svgNs,'circle');
+  marker.setAttribute('r','4'); marker.setAttribute('fill','var(--ink)');
+  marker.setAttribute('stroke','var(--gold)'); marker.setAttribute('stroke-width','2');
+  marker.style.display = 'none';
+  svg.appendChild(marker);
+
+  function onMove(clientX){
+    const rect = svg.getBoundingClientRect();
+    const relX = (clientX - rect.left) * (w/rect.width);
+    let idx = Math.round(((relX - padL)/plotW) * (bucketCount-1));
+    idx = Math.max(0, Math.min(bucketCount-1, idx));
+    const px = x(idx), py = y(buckets[idx]);
+    marker.setAttribute('cx', px); marker.setAttribute('cy', py);
+    marker.style.display = 'block';
+    const tStart = new Date(a.start.getTime() + idx*bucketSec*1000);
+    tip.textContent = fmtTime(tStart) + '  ·  ' + fmtInt(buckets[idx]) + ' dmg';
+    tip.hidden = false;
+    tip.style.left = (px/w*100) + '%';
+    tip.style.top = (py/h*100) + '%';
+  }
+  svg.querySelector('#hoverRect').addEventListener('mousemove', e => onMove(e.clientX));
+  svg.querySelector('#hoverRect').addEventListener('mouseleave', () => { tip.hidden = true; marker.style.display='none'; });
+  svg.querySelector('#hoverRect').addEventListener('touchmove', e => { if(e.touches[0]) onMove(e.touches[0].clientX); }, {passive:true});
+}
+
+/* ============================== EVENTS ============================== */
+
+els.chooseBtn.addEventListener('click', ()=> els.fileInput.click());
+els.sampleBtn.addEventListener('click', loadBigDemo);
+els.comboToggle.addEventListener('click', ()=>{
+  state.comboExpanded = !state.comboExpanded;
+  renderCombos();
+});
+els.comboSortSel.addEventListener('change', ()=>{
+  state.comboSort = els.comboSortSel.value;
+  renderCombos();
+});
+els.zoneFilterSel.addEventListener('change', ()=>{
+  state.zoneFilter = els.zoneFilterSel.value || null;
+  state.selectedSet = null;
+  state.anchorIdx = null;
+  state.fightExpanded = false;
+  renderFightList();
+  renderDetail();
+});
+els.fightSortSel.addEventListener('change', ()=>{
+  state.fightSort = els.fightSortSel.value;
+  renderFightList();
+});
+els.fightToggle.addEventListener('click', ()=>{
+  state.fightExpanded = !state.fightExpanded;
+  renderFightList();
+});
+els.fightClearSel.addEventListener('click', ()=>{
+  state.selectedSet = null;
+  state.anchorIdx = null;
+  renderFightList();
+  renderDetail();
+});
+
+els.fileInput.addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => loadText(reader.result, file.name, false);
+  reader.readAsText(file);
+});
+
+['dragenter','dragover'].forEach(evt=>{
+  els.dropzone.addEventListener(evt, e=>{ e.preventDefault(); els.dropzone.classList.add('drag'); });
+});
+['dragleave','drop'].forEach(evt=>{
+  els.dropzone.addEventListener(evt, e=>{ e.preventDefault(); els.dropzone.classList.remove('drag'); });
+});
+els.dropzone.addEventListener('drop', e=>{
+  const file = e.dataTransfer.files && e.dataTransfer.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => loadText(reader.result, file.name, false);
+  reader.readAsText(file);
+});
+
+els.gapSlider.addEventListener('input', ()=>{
+  state.gapSec = +els.gapSlider.value;
+  els.gapVal.textContent = state.gapSec + 's';
+  resegment();
+});
+
+window.addEventListener('resize', ()=>{ if(state.fights.length) renderDetail(); });
+
+/* ============================== BOOT ============================== */
+
+loadBigDemo();
+</script>
+
+</body></html>
