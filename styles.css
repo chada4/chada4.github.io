@@ -427,6 +427,9 @@ button:focus-visible {
   align-self: flex-start;
 }
 
+/* An odd last card spans the full row instead of sitting alone */
+.project-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
 @media (max-width: 40rem) {
   .projects-grid { grid-template-columns: 1fr; }
 }
